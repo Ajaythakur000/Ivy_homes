@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { fetchApi, toggleSaved } from '@/lib/api';
+import { useFavourites } from '@/lib/FavouritesContext';
 import Link from 'next/link';
 
 function formatPrice(price: number) {
@@ -12,12 +12,13 @@ function formatPrice(price: number) {
 export default function ListingDetail({ params }: { params: { id: string } }) {
   const [listing, setListing] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [saved, setSaved] = useState(false);
+  const favourites = useFavourites();
+  const isSaved = favourites.isSaved(params.id);
 
   useEffect(() => {
     async function loadListing() {
       try {
-        const res = await fetchApi(`/v1/listings/${params.id}`);
+        const res = await fetch(`/api/proxy/v1/listings/${params.id}`);
         if (res.ok) {
           setListing(await res.json());
         }
@@ -31,12 +32,7 @@ export default function ListingDetail({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   const handleSave = async () => {
-    try {
-      await toggleSaved(params.id, saved);
-      setSaved(!saved);
-    } catch (err) {
-      console.error(err);
-    }
+    favourites.toggleSavedItem(params.id);
   };
 
   if (loading) return <div className="max-w-4xl mx-auto px-6 py-16 text-center text-secondary">Loading listing...</div>;
@@ -75,7 +71,7 @@ export default function ListingDetail({ params }: { params: { id: string } }) {
         {listing.is_verified && <span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700">✓ Verified</span>}
         <span className="text-xs px-3 py-1 rounded-full bg-[#F7F6F2] text-secondary capitalize">{listing.property_type}</span>
         <button onClick={handleSave} className="text-xs px-3 py-1 rounded-full border border-border hover:bg-[#F7F6F2] transition ml-auto">
-          {saved ? '♥ Saved' : '♡ Save'}
+          {isSaved ? '♥ Saved' : '♡ Save'}
         </button>
       </div>
 

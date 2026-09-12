@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSaved, toggleSaved } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
+import { useFavourites } from '@/lib/FavouritesContext';
 import Link from 'next/link';
 
 function formatPrice(price: number) {
@@ -12,39 +12,52 @@ function formatPrice(price: number) {
 }
 
 export default function FavouritesPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { savedIds, loading: favLoading, toggleSavedItem } = useFavourites();
   const router = useRouter();
   const [savedItems, setSavedItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
-    // Redirect unauthenticated users to login
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       router.replace('/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  useEffect(() => {
+    if (savedIds.size === 0) {
+      setSavedItems([]);
       return;
     }
-    loadSaved();
-  }, [isAuthenticated, router]);
-
-  async function loadSaved() {
-    setLoading(true);
-    try {
-      const data = await getSaved();
-      setSavedItems(data.results || []);
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  }
+    
+    // Fetch details for all saved IDs
+    async function fetchSavedDetails() {
+      setFetching(true);
+      try {
+        // We fetch the full list of saved from the proxy to get all metadata
+        const res = await fetch('/api/proxy/v1/saved');
+        if (res.ok) {
+          const data = await res.json();
+          // Filter to only what's currently in context to prevent sync lag
+          const items = (data.results || []).filter((r: any) => savedIds.has(r.listing_id));
+          setSavedItems(items);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setFetching(false);
+      }
+    }
+    fetchSavedDetails();
+  }, [savedIds]);
 
   async function handleRemove(id: string, e: React.MouseEvent) {
     e.preventDefault();
-    try {
-      await toggleSaved(id, true);
-      setSavedItems(prev => prev.filter(item => item.listing_id !== id));
-    } catch (err) { console.error(err); }
+    toggleSavedItem(id);
   }
 
   // Show nothing while redirecting
-  if (!isAuthenticated) {
+  if (authLoading || !isAuthenticated) {
     return null;
   }
 
