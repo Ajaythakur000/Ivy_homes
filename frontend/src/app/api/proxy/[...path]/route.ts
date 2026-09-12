@@ -19,7 +19,10 @@ async function proxyRequest(req: NextRequest, path: string) {
 
   const init: RequestInit = { method: req.method, headers, cache: 'no-store' };
   if (req.method !== 'GET' && req.method !== 'HEAD') {
-    try { init.body = await req.text(); } catch {}
+    try { 
+      const text = await req.text(); 
+      if (text) init.body = text; 
+    } catch {}
   }
 
   let res = await fetch(ivyUrl, init);

@@ -78,9 +78,8 @@ export async function saveListing(id: string) {
 }
 
 export async function unsaveListing(id: string) {
-  const res = await api('/api/proxy/v1/saved', {
+  const res = await api(`/api/proxy/v1/saved/${id}`, {
     method: 'DELETE',
-    body: JSON.stringify({ listing_id: id }),
   });
   if (!res.ok) throw new Error('Failed to unsave');
   return res.json();

@@ -55,35 +55,24 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
   const toggleSavedItem = useCallback(async (id: string) => {
     const currentlySaved = savedIds.has(id);
     
-    // Optimistic update
-    setSavedIds(prev => {
-      const next = new Set(prev);
-      if (currentlySaved) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-
     try {
       if (currentlySaved) {
         await unsaveListing(id);
+        setSavedIds(prev => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
       } else {
         await saveListing(id);
+        setSavedIds(prev => {
+          const next = new Set(prev);
+          next.add(id);
+          return next;
+        });
       }
     } catch (err) {
       console.error('Failed to toggle saved item', err);
-      // Revert optimistic update on failure
-      setSavedIds(prev => {
-        const next = new Set(prev);
-        if (currentlySaved) {
-          next.add(id);
-        } else {
-          next.delete(id);
-        }
-        return next;
-      });
     }
   }, [savedIds]);
 

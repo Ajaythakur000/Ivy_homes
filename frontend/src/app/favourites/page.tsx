@@ -53,6 +53,7 @@ export default function FavouritesPage() {
 
   async function handleRemove(id: string, e: React.MouseEvent) {
     e.preventDefault();
+    e.stopPropagation();
     toggleSavedItem(id);
   }
 
