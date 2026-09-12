@@ -1,35 +1,33 @@
 'use client'
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login } from '@/lib/api';
 import { useAuth } from '@/lib/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const router = useRouter();
-  const { isAuthenticated, onLoginSuccess } = useAuth();
+  const { isAuthenticated, login, loading } = useAuth();
 
   // If already logged in, redirect to explore
-  if (isAuthenticated) {
+  if (isAuthenticated && !loading) {
     router.replace('/explore');
     return null;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoggingIn(true);
     setError('');
     try {
-      const data = await login(email, password);
-      onLoginSuccess(data.user?.email || email);
+      await login(email, password);
       router.push('/explore');
     } catch (err: any) {
       setError('Login failed. Please check your credentials.');
     } finally {
-      setLoading(false);
+      setIsLoggingIn(false);
     }
   };
 
@@ -63,10 +61,10 @@ export default function LoginPage() {
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <button 
           type="submit" 
-          disabled={loading}
+          disabled={isLoggingIn || loading}
           className="w-full py-2 bg-foreground text-background rounded-md font-medium hover:bg-opacity-90 disabled:opacity-50"
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {isLoggingIn ? 'Logging in...' : 'Login'}
         </button>
       </form>
     </div>

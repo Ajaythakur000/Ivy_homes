@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { fetchListings } from '@/lib/api';
+import { useFavourites } from '@/lib/FavouritesContext';
 import Link from 'next/link';
 
 function formatPrice(price: number) {
@@ -12,6 +13,7 @@ function formatPrice(price: number) {
 export default function ExplorePage() {
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const favourites = useFavourites();
   const [total, setTotal] = useState(0);
   
   // API filters (these work server-side)
@@ -189,32 +191,74 @@ export default function ExplorePage() {
       </div>
 
       {/* Results */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {filteredListings.map(item => (
-          <Link key={item.listing_id} href={`/listing/${item.listing_id}`} className="group block border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-white">
-            <div className="h-44 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
-              <span className="text-muted text-sm">{item.property_type}</span>
-              {item.is_live === false && (
-                <span className="absolute top-3 right-3 bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full">Inactive</span>
-              )}
-              {item.is_verified && (
-                <span className="absolute top-3 left-3 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">✓ Verified</span>
-              )}
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-base truncate group-hover:text-accent transition-colors">{item.apartment_name || 'Unnamed'}</h3>
-              <p className="text-secondary text-sm capitalize">{item.locality}</p>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="font-semibold text-lg">{formatPrice(item.price)}</span>
-                <span className="text-sm text-secondary">{item.bedroom} BHK · {item.carpet_area} sqft</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        {filteredListings?.map(item => {
+          const isSaved = favourites.isSaved(item.listing_id);
+          const hasError = item.price < 0 || !item.apartment_name;
+          
+          return (
+            <div key={item.listing_id} className="group relative flex flex-col border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 bg-white">
+              <Link href={`/listing/${item.listing_id}`} className="absolute inset-0 z-0" aria-label={`View ${item.apartment_name}`} />
+              
+              <div 
+                className="h-48 relative flex items-center justify-center border-b border-border/50"
+                style={{
+                  backgroundColor: '#F7F6F2',
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23686863' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E")`
+                }}
+              >
+                <span className="text-muted text-xs uppercase tracking-widest font-medium px-3 py-1 bg-white/80 backdrop-blur-sm rounded-full border border-border/50">
+                  {item.property_type || 'Property'}
+                </span>
+                
+                <div className="absolute top-3 left-3 flex gap-2">
+                  {hasError && (
+                    <span className="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-md font-medium border border-red-200 shadow-sm z-10">⚠ Invalid</span>
+                  )}
+                  {item.is_live === false && !hasError && (
+                    <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-md font-medium border border-gray-200 shadow-sm z-10">Inactive</span>
+                  )}
+                  {item.is_verified && !hasError && (
+                    <span className="bg-[#E8F3EE] text-accent text-xs px-2.5 py-1 rounded-md font-medium border border-[#D1E6DB] shadow-sm z-10">✓ Verified</span>
+                  )}
+                </div>
+
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    favourites.toggleSavedItem(item.listing_id);
+                  }}
+                  className={`absolute top-3 right-3 p-2 rounded-full z-10 transition-all shadow-sm border ${
+                    isSaved 
+                      ? 'bg-red-50 text-red-500 border-red-100 hover:bg-red-100' 
+                      : 'bg-white text-secondary border-border hover:text-accent hover:border-accent'
+                  }`}
+                  aria-label={isSaved ? "Remove from saved" : "Save property"}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                </button>
               </div>
-              <div className="mt-2 flex gap-2">
-                <span className="text-xs text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{item.furnishing}</span>
-                <span className="text-xs text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{item.facing_direction}</span>
+              
+              <div className="p-5 flex flex-col flex-grow z-10 pointer-events-none">
+                <h3 className="font-semibold text-lg leading-tight truncate group-hover:text-accent transition-colors">{item.apartment_name || 'Unnamed Property'}</h3>
+                <p className="text-secondary text-sm mt-1 capitalize">{item.locality || 'Unknown location'}</p>
+                
+                <div className="mt-4 flex items-end justify-between">
+                  <span className="font-semibold text-xl tracking-tight">{item.price >= 0 ? formatPrice(item.price) : 'N/A'}</span>
+                  <span className="text-sm font-medium text-secondary">{item.bedroom} BHK <span className="mx-1 opacity-50">|</span> {item.carpet_area} sqft</span>
+                </div>
+                
+                <div className="mt-4 pt-4 border-t border-border/50 flex gap-2">
+                  <span className="text-[11px] font-medium text-secondary uppercase tracking-wider bg-background px-2 py-1 rounded-md">{item.furnishing || 'N/A'}</span>
+                  <span className="text-[11px] font-medium text-secondary uppercase tracking-wider bg-background px-2 py-1 rounded-md">{item.facing_direction || 'N/A'}</span>
+                </div>
               </div>
             </div>
-          </Link>
-        ))}
+          );
+        })}
       </div>
       
       {loading && <div className="text-center py-8 text-secondary">Loading properties...</div>}

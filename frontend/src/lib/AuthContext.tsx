@@ -1,19 +1,21 @@
 'use client'
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { login as apiLogin, logout as apiLogout, getSession } from '@/lib/api';
 
 interface AuthState {
   isAuthenticated: boolean;
   userEmail: string | null;
-  /** Call after a successful API login to sync context with localStorage */
-  onLoginSuccess: (email: string) => void;
-  logout: () => void;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState>({
   isAuthenticated: false,
   userEmail: null,
-  onLoginSuccess: () => {},
-  logout: () => {},
+  loading: true,
+  login: async () => {},
+  logout: async () => {},
 });
 
 export function useAuth() {
@@ -23,33 +25,33 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Rehydrate from localStorage on mount so the session survives a refresh
+  // Rehydrate from HttpOnly cookie via server route on mount
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const email = localStorage.getItem('user_email');
-    if (token) {
-      setIsAuthenticated(true);
-      setUserEmail(email);
-    }
+    getSession()
+      .then(s => {
+        setIsAuthenticated(s.authenticated);
+        setUserEmail(s.email);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const onLoginSuccess = useCallback((email: string) => {
-    localStorage.setItem('user_email', email);
+  const login = useCallback(async (email: string, password: string) => {
+    const data = await apiLogin(email, password);
     setIsAuthenticated(true);
-    setUserEmail(email);
+    setUserEmail(data.email || email);
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user_email');
+  const logout = useCallback(async () => {
+    await apiLogout();
     setIsAuthenticated(false);
     setUserEmail(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userEmail, onLoginSuccess, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, userEmail, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
