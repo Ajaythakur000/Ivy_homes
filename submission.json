@@ -43,8 +43,8 @@
     "total_monthly_rent": 5184200,
     "avg_price_per_sqft_2bhk": 18314.23,
     "costliest_project": {
-      "project_id": "P30394",
-      "price_max_inr": 999000000
+      "project_id": "P30198",
+      "price_max_inr": 38300000
     },
     "listings_last_7_days": 128,
     "fake_listing_ids": [
