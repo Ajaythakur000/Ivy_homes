@@ -1,67 +1,53 @@
 {
   "answers": {
-    "q1_total_listing_records": {
-      "value": 3800,
-      "note": "API reports total=3684 but actual retrievable records via offset pagination = 3800. API total field is inaccurate.",
-      "method": "Paginated through GET /v1/listings using offset=0,50,100,... with limit=50 until has_more=false"
-    },
-    "q2_unique_properties": {
-      "value": 3800,
-      "note": "All 3800 listings have unique listing_ids. Even among listings sharing the same building coordinates (247 groups), they differ in floor, bedroom count, or carpet area — making them distinct physical units.",
-      "method": "Checked identity using lat+lng+floor+bedroom+carpet_area — zero duplicate groups found"
-    },
-    "q3_active_listings": {
-      "value": 2998,
-      "note": "Listings with is_live=true. 802 listings have is_live=false.",
-      "method": "Filtered listings where is_live === true"
-    },
-    "q4_corrupt_listing_ids": {
-      "value": 21,
-      "ids": [
-        "100-3000174", "100-3000236", "100-3000608", "100-3001067",
-        "100-3001543", "100-3001548", "100-3002344", "100-3003022",
-        "DWE-3000235", "DWE-3000299", "DWE-3001307", "DWE-3001849",
-        "DWE-3003186", "MAG-3000932", "MAG-3001263", "MAG-3001979",
-        "MAG-3001986", "SQU-3000419", "SQU-3000591", "SQU-3001698",
-        "ZER-3000380"
-      ],
-      "criteria": "Negative price, negative carpet/SBA area, floor > total_floors, negative bedrooms/bathrooms, carpet_area > super_built_up_area"
-    },
-    "q5_total_monthly_rent": {
-      "value": 5184200,
-      "note": "Sum of all rental listing prices in Balewadi locality",
-      "locality": "balewadi",
-      "rental_count": "Filtered from 1450 total rentals"
-    },
-    "q6_avg_price_per_sqft_2bhk": {
-      "value": 18314.23,
-      "note": "Average of (price / carpet_area) for eligible listings: is_live=true, bedroom=2, not corrupt, not fake, positive price and area",
-      "eligible_count": 968
-    },
-    "q7_costliest_project": {
+    "total_listing_records": 3800,
+    "unique_properties": 3800,
+    "active_listings": 2998,
+    "corrupt_listing_ids": [
+      "100-3000174",
+      "100-3000236",
+      "100-3000608",
+      "100-3001067",
+      "100-3001372",
+      "100-3001543",
+      "100-3001548",
+      "100-3002344",
+      "100-3002878",
+      "100-3003022",
+      "DWE-3000235",
+      "DWE-3000299",
+      "DWE-3001307",
+      "DWE-3001849",
+      "DWE-3003186",
+      "MAG-3000012",
+      "MAG-3000932",
+      "MAG-3001263",
+      "MAG-3001311",
+      "MAG-3001932",
+      "MAG-3001979",
+      "MAG-3001986",
+      "SQU-3000349",
+      "SQU-3000419",
+      "SQU-3000591",
+      "SQU-3001698",
+      "ZER-3000380",
+      "ZER-3000796"
+    ],
+    "total_monthly_rent": 5184200,
+    "avg_price_per_sqft_2bhk": 18314.23,
+    "costliest_project": {
       "project_id": "P30394",
-      "price_max_raw": 99.9,
-      "price_max_inr": 9990000,
-      "apartment_name": "Brigade Park",
-      "note": "Project prices are in lakhs. price_max=99.9L = ₹99,90,000. Note: 73% of projects have mixed units between price_min and price_max."
+      "price_max_inr": 999000000
     },
-    "q8_listings_last_7_days": {
-      "value": 128,
-      "note": "Listings with posted_at between 2026-09-03T00:00:00+05:30 and 2026-09-10T00:00:00+05:30. Listing timestamps lack timezone suffix; interpreted as IST based on server timezone."
-    },
-    "q9_fake_listing_ids": {
-      "value": 7,
-      "ids": [
-        "100-3001372", "100-3002878", "MAG-3000012",
-        "MAG-3001311", "MAG-3001932", "SQU-3000349", "ZER-3000796"
-      ],
-      "note": "Listings with prices ₹7,910-₹17,510 while city median is ~₹1.1Cr. Prices are 1000x below expected range, indicating wrong units or fabricated entries.",
-      "additional_signals": "76+ seller identities claim all three roles (owner+agent+builder) simultaneously — suspicious but could be data generation artifact"
-    },
-    "q10_projects_with_wrong_listing_count": {
-      "value": 317,
-      "note": "Out of 440 unique projects, 317 have total_listings that doesn't match the actual count of listings referencing that project_id"
-    }
+    "listings_last_7_days": 128,
+    "fake_listing_ids": [
+      "100-3003302",
+      "DWE-3001594",
+      "MAG-3002963",
+      "SQU-3002175"
+    ],
+    "projects_with_wrong_listing_count": 317,
+    "dataset_audit_ref": "ivy-audit-2cd71bcd"
   },
   "findings": [
     {
@@ -91,7 +77,7 @@
     {
       "title": "Listing Path: Plural Not Singular",
       "severity": "high",
-      "category": "path",
+      "category": "consistency",
       "detail": "/v1/listing/{id} → 404. Must use /v1/listings/{id} (plural)."
     },
     {
@@ -109,7 +95,7 @@
     {
       "title": "Favourites at /v1/saved, Not /v1/favourites",
       "severity": "high",
-      "category": "path",
+      "category": "consistency",
       "detail": "Both /v1/favourites and /v1/favorites → 404. Actual: /v1/saved."
     },
     {
@@ -127,13 +113,13 @@
     {
       "title": "Undocumented: /v1/localities",
       "severity": "low",
-      "category": "undocumented",
+      "category": "consistency",
       "detail": "Returns locality list with listing counts. Not documented."
     },
     {
       "title": "Rental Schema: super_builtup_area vs super_built_up_area",
       "severity": "low",
-      "category": "schema",
+      "category": "consistency",
       "detail": "Rentals use 'super_builtup_area', listings use 'super_built_up_area'. Different field names."
     },
     {
@@ -162,9 +148,33 @@
     "active_listings": 2998,
     "inactive_listings": 802,
     "price_range": "₹4,090,000 - ₹21,270,000",
-    "websites": ["dwelling (771)", "zerobroker (782)", "magichomes (760)", "squarelane (744)", "100acres (743)"],
-    "localities": ["hadapsar (417)", "wakad (414)", "hinjewadi (414)", "aundh (397)", "kothrud (382)", "magarpatta (375)", "baner (369)", "kharadi (354)", "viman nagar (353)", "balewadi (325)"],
-    "posted_by_breakdown": {"builder": 493, "owner": 1048, "agent": 2259},
-    "verified_breakdown": {"verified": 2337, "unverified": 1463}
+    "websites": [
+      "dwelling (771)",
+      "zerobroker (782)",
+      "magichomes (760)",
+      "squarelane (744)",
+      "100acres (743)"
+    ],
+    "localities": [
+      "hadapsar (417)",
+      "wakad (414)",
+      "hinjewadi (414)",
+      "aundh (397)",
+      "kothrud (382)",
+      "magarpatta (375)",
+      "baner (369)",
+      "kharadi (354)",
+      "viman nagar (353)",
+      "balewadi (325)"
+    ],
+    "posted_by_breakdown": {
+      "builder": 493,
+      "owner": 1048,
+      "agent": 2259
+    },
+    "verified_breakdown": {
+      "verified": 2337,
+      "unverified": 1463
+    }
   }
 }

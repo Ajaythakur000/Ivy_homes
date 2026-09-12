@@ -39,6 +39,9 @@ export default function ExplorePage() {
         if (locality) params.locality = locality;
         if (bhk) params.bhk = bhk;
         if (propertyType) params.property_type = propertyType;
+        if (minPrice) params.min_price = minPrice;
+        if (maxPrice) params.max_price = maxPrice;
+        if (furnishing) params.furnishing = furnishing;
         if (sortBy) { params.sort_by = sortBy; params.order = sortOrder; }
 
         const data = await fetchListings(params);
@@ -53,17 +56,7 @@ export default function ExplorePage() {
       }
     }
     loadData();
-  }, [locality, bhk, propertyType, sortBy, sortOrder, offset]);
-
-  // Client-side filtering for broken API filters
-  const filteredListings = listings.filter(item => {
-    const price = item.price;
-    if (price < 0) return false; // corrupt
-    if (minPrice && price < Number(minPrice) * 100000) return false;
-    if (maxPrice && price > Number(maxPrice) * 100000) return false;
-    if (furnishing && item.furnishing?.toLowerCase() !== furnishing.toLowerCase()) return false;
-    return true;
-  });
+  }, [locality, bhk, propertyType, minPrice, maxPrice, furnishing, sortBy, sortOrder, offset]);
 
   const resetAndReload = () => {
     setOffset(0);
@@ -192,7 +185,7 @@ export default function ExplorePage() {
 
       {/* Results */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-        {filteredListings?.map(item => {
+        {listings?.map(item => {
           const isSaved = favourites.isSaved(item.listing_id);
           const hasError = item.price < 0 || !item.apartment_name;
           
@@ -263,7 +256,7 @@ export default function ExplorePage() {
       
       {loading && <div className="text-center py-8 text-secondary">Loading properties...</div>}
       
-      {!loading && filteredListings.length === 0 && (
+      {!loading && listings.length === 0 && (
         <div className="text-center py-12 text-secondary">
           <p className="text-lg">No properties match your filters</p>
           <p className="text-sm mt-1">Try adjusting your search criteria</p>

@@ -44,16 +44,13 @@ export async function GET(req: NextRequest) {
   const maxPrice   = url.searchParams.get('max_price') || '';
   const furnishing = url.searchParams.get('furnishing') || '';
 
-  const needsServerFilter = minPrice || maxPrice || furnishing;
+  const anyFilterApplied = locality || bhk || propertyType || minPrice || maxPrice || furnishing;
 
-  if (!needsServerFilter) {
+  if (!anyFilterApplied) {
     // Simple passthrough — let Ivy handle pagination
     const params = new URLSearchParams();
     params.set('offset', String(offset));
     params.set('limit', String(limit));
-    if (locality) params.set('locality', locality);
-    if (bhk) params.set('bhk', bhk);
-    if (propertyType) params.set('property_type', propertyType);
     if (sortBy) { params.set('sort_by', sortBy); params.set('order', order); }
 
     const data = await ivyGet(`/v1/listings?${params}`, token);

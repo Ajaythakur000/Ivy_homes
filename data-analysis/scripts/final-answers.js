@@ -146,23 +146,29 @@ for (const p of projects) {
 }
 
 // ============================================================
+// ============================================================
 // COMPILE FINAL FAKE LIST
 // ============================================================
 console.log('\n\n=== COMPILING FAKE LISTING IDS ===');
 
 // Based on evidence:
-// 1. Suspiciously low prices (< 50000 for a property) — these are clearly wrong/fake
-// 2. People claiming to be owner+agent+builder simultaneously — suspicious identity
-
-// Let's be conservative and only flag what we have strong evidence for
+// 1. Identical duplicate descriptions are a strong sign of spam/fake listings
+const descCount = {};
+listings.forEach(l => { 
+  if (l.description) { 
+    const d = l.description.toLowerCase().trim(); 
+    descCount[d] = (descCount[d] || 0) + 1; 
+  } 
+});
 const fakeSet = new Set();
-
-// Low prices are definitely not real property listings
-// A property in Pune costs millions, not thousands
-suspiciouslyLowPrice.forEach(l => fakeSet.add(l.listing_id));
+listings.forEach(l => {
+  if (l.description) {
+    const d = l.description.toLowerCase().trim();
+    if (descCount[d] > 1) fakeSet.add(l.listing_id);
+  }
+});
 
 console.log(`Fake candidates:`);
-console.log(`  Very low price: ${suspiciouslyLowPrice.length}`);
 console.log(`  Total unique fake: ${fakeSet.size}`);
 console.log(`  IDs: [${[...fakeSet].sort().join(', ')}]`);
 
@@ -173,6 +179,7 @@ const corruptIds = [];
 for (const l of listings) {
   const isCorrupt = 
     l.price < 0 ||
+    (l.price > 0 && l.price < 50000) || // Low price = wrong unit (corrupt, not fake)
     (l.carpet_area !== undefined && l.carpet_area < 0) ||
     (l.super_built_up_area !== undefined && l.super_built_up_area < 0) ||
     (l.floor > l.total_floors && l.total_floors > 0) ||
@@ -201,14 +208,19 @@ const avgPpsf = ppsfVals.reduce((a, b) => a + b, 0) / ppsfVals.length;
 console.log(`\nQ6 recalculated: ${eligible2bhk.length} eligible, avg=${avgPpsf.toFixed(2)}`);
 
 // Determine costliest project
-const sortedProjects = [...projects].sort((a, b) => b.price_max - a.price_max);
-const costliest = sortedProjects[0];
+// Normalizing mixed units before comparison
+let costliest = { project_id: '', price_max_inr: 0 };
+projects.forEach(p => {
+  let valInr = 0;
+  if (p.price_max < 100) { valInr = p.price_max * 10000000; } // Crores
+  else { valInr = p.price_max * 100000; } // Lakhs
+  
+  if (valInr > costliest.price_max_inr) { 
+    costliest = { project_id: p.project_id, price_max_inr: valInr, raw: p.price_max }; 
+  }
+});
 
-// Determine price_max_inr
-// Based on cross-reference, project prices appear to be in lakhs
-const costliestInr = Math.round(costliest.price_max * 100000);
-
-console.log(`\nQ7: ${costliest.project_id}, raw=${costliest.price_max}, INR=${costliestInr}`);
+console.log(`\nQ7: ${costliest.project_id}, raw=${costliest.raw}, INR=${costliest.price_max_inr}`);
 
 // Save comprehensive output
 const finalAnswers = {

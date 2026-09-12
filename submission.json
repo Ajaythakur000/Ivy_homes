@@ -103,7 +103,7 @@
       ]
     },
     {
-      "endpoint": "GET /v{id}/listings/{id}",
+      "endpoint": "GET /v1/listings/{id}",
       "category": "consistency",
       "documented": "GET /v1/listing/{id} (singular 'listing')",
       "actual": "GET /v1/listing/{id} returns 404. Must use /v1/listings/{id} (plural 'listings')",
@@ -115,7 +115,7 @@
       ]
     },
     {
-      "endpoint": "GET /v{id}/listings/{id}/similar",
+      "endpoint": "GET /v1/listings/{id}/similar",
       "category": "missing_endpoint",
       "documented": "Returns array of similar listings for a given listing",
       "actual": "Returns 404 Not Found. Endpoint does not exist.",
