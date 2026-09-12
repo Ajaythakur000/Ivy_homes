@@ -134,7 +134,6 @@ export default function ExplorePage() {
           <option value="penthouse">Penthouse</option>
         </select>
 
-        {/* Client-side filters (API ignores these) */}
         <input 
           type="number"
           min="0"
@@ -146,6 +145,7 @@ export default function ExplorePage() {
               setMinPrice(val);
               // If max is set and now less than min, clear max
               if (maxPrice && val && Number(maxPrice) < Number(val)) setMaxPrice('');
+              resetAndReload();
             }
           }}
           onWheel={e => (e.target as HTMLInputElement).blur()}
@@ -162,6 +162,7 @@ export default function ExplorePage() {
               // Only accept if empty or >= minPrice
               if (val === '' || !minPrice || Number(val) >= Number(minPrice)) {
                 setMaxPrice(val);
+                resetAndReload();
               }
             }
           }}
@@ -173,7 +174,7 @@ export default function ExplorePage() {
         />
         <select 
           value={furnishing} 
-          onChange={e => setFurnishing(e.target.value)}
+          onChange={e => { setFurnishing(e.target.value); resetAndReload(); }}
           className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] text-sm"
         >
           <option value="">Any Furnishing</option>
