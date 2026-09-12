@@ -1,0 +1,188 @@
+{
+  "api_key": "IVY26-DB87EF117BE3",
+  "candidate": {
+    "name": "Ajay Thakur",
+    "email": "ajay.20233033@mnnit.ac.in",
+    "repo_url": "",
+    "demo_url": ""
+  },
+  "answers": {
+    "total_listing_records": 3800,
+    "unique_properties": 3800,
+    "active_listings": 2998,
+    "corrupt_listing_ids": [
+      "100-3000174",
+      "100-3000236",
+      "100-3000608",
+      "100-3001067",
+      "100-3001543",
+      "100-3001548",
+      "100-3002344",
+      "100-3003022",
+      "DWE-3000235",
+      "DWE-3000299",
+      "DWE-3001307",
+      "DWE-3001849",
+      "DWE-3003186",
+      "MAG-3000932",
+      "MAG-3001263",
+      "MAG-3001979",
+      "MAG-3001986",
+      "SQU-3000419",
+      "SQU-3000591",
+      "SQU-3001698",
+      "ZER-3000380"
+    ],
+    "total_monthly_rent": 5184200,
+    "avg_price_per_sqft_2bhk": 18314.23,
+    "costliest_project": { "project_id": "P30394", "price_max_inr": 9990000 },
+    "listings_last_7_days": 128,
+    "fake_listing_ids": [
+      "100-3001372",
+      "100-3002878",
+      "MAG-3000012",
+      "MAG-3001311",
+      "MAG-3001932",
+      "SQU-3000349",
+      "ZER-3000796"
+    ],
+    "projects_with_wrong_listing_count": 317
+  },
+  "findings": [
+    {
+      "endpoint": "POST /auth/login",
+      "category": "auth",
+      "documented": "API key sent as query parameter ?api_key=...",
+      "actual": "API key must be sent in X-API-Key request header. Query param returns error: 'send your key in the X-API-Key request header, not as a query parameter'",
+      "how_found": "Sent API key as query param per docs → 401 error with explicit message about X-API-Key header",
+      "impact": "All API calls fail until auth method corrected. Blocks entire integration.",
+      "evidence": ["GET /v1/listings?api_key=IVY26-... → 401 {detail: 'send your key in the X-API-Key request header'}"]
+    },
+    {
+      "endpoint": "POST /auth/login",
+      "category": "auth",
+      "documented": "Response field: 'token' (string), expires_in: 86400 (24 hours)",
+      "actual": "Response field: 'access_token' (string), expires_in: 900 (15 minutes). Also returns 'refresh_token', 'refresh_url': '/auth/refresh', 'token_type': 'Bearer'",
+      "how_found": "Called POST /auth/login and inspected response JSON keys",
+      "impact": "Client expecting 'token' field gets undefined. 24h cache strategy causes auth failures after 15 min.",
+      "evidence": ["Response: {access_token, refresh_token, token_type: 'Bearer', expires_in: 900, refresh_url: '/auth/refresh', user: {email}}"]
+    },
+    {
+      "endpoint": "GET /v1/listings",
+      "category": "pagination",
+      "documented": "Page-based pagination with 'page' parameter, limit up to 200, response contains 'page_size'",
+      "actual": "Offset-based pagination using 'offset' and 'limit' params. 'page' parameter is silently ignored (always returns first page). Max effective limit is 50. Response shape: {limit, offset, count, total, has_more, results} — no 'page_size' field.",
+      "how_found": "Sent page=1,2,3 with limit=5 — all returned identical results. Used offset=0,5,10 — returned different results correctly.",
+      "impact": "Any client using page-based pagination gets only first page's data repeatedly. Data appears complete but is truncated.",
+      "evidence": ["page=1 IDs: [DWE-3002501, SQU-3001712, ...] identical to page=2", "offset=0 → DWE-3002501,...; offset=5 → SQU-3003196,..."]
+    },
+    {
+      "endpoint": "GET /v1/listings",
+      "category": "pagination",
+      "documented": "Response 'total' field gives accurate count of records",
+      "actual": "'total' field reports 3684 but actual retrievable records (via offset pagination until has_more=false) is 3800. Off by 116 records (3.15%).",
+      "how_found": "Paginated through all records with offset=0,50,100,... until has_more=false. Counted 3800 unique records vs reported total=3684.",
+      "impact": "Progress calculations and UI total counts are wrong. Some records invisible to clients trusting total.",
+      "evidence": ["total=3684 but 76 pages of 50 records = 3800 unique records fetched"]
+    },
+    {
+      "endpoint": "GET /v1/listings/{id}",
+      "category": "path",
+      "documented": "GET /v1/listing/{id} (singular 'listing')",
+      "actual": "GET /v1/listing/{id} returns 404. Must use /v1/listings/{id} (plural 'listings')",
+      "how_found": "Called /v1/listing/DWE-3002501 → 404. Called /v1/listings/DWE-3002501 → 200.",
+      "impact": "Detail page integration fails until path corrected.",
+      "evidence": ["/v1/listing/DWE-3002501 → 404 Not Found", "/v1/listings/DWE-3002501 → 200 OK"]
+    },
+    {
+      "endpoint": "GET /v1/listings/{id}/similar",
+      "category": "missing_endpoint",
+      "documented": "Returns array of similar listings for a given listing",
+      "actual": "Returns 404 Not Found. Endpoint does not exist.",
+      "how_found": "Called /v1/listings/DWE-3002501/similar and /v1/listing/DWE-3002501/similar — both return 404",
+      "impact": "Similar listings feature cannot be built using this endpoint.",
+      "evidence": ["/v1/listings/DWE-3002501/similar → 404", "/v1/listing/DWE-3002501/similar → 404"]
+    },
+    {
+      "endpoint": "GET /v1/listings",
+      "category": "filters",
+      "documented": "Supports min_price, max_price, and furnishing query filters",
+      "actual": "min_price, max_price, and furnishing filters are silently ignored. Total count remains unchanged and results are not filtered. Only locality, bhk, and property_type filters actually work.",
+      "how_found": "Called /v1/listings?min_price=50000000 → total=3684 (same as unfiltered), results contain prices well below 50M. Same for max_price and furnishing.",
+      "impact": "Client-side filtering required for price range and furnishing. Server load unchanged by these filters.",
+      "evidence": ["?min_price=50000000 → total=3684, prices include 4140000", "?furnishing=unfurnished → total=3684, results include semi-furnished and fully-furnished"]
+    },
+    {
+      "endpoint": "GET /v1/favourites",
+      "category": "path",
+      "documented": "Saved listings at GET /v1/favourites",
+      "actual": "GET /v1/favourites returns 404. Actual endpoint is GET /v1/saved.",
+      "how_found": "Tried /v1/favourites and /v1/favorites — both 404. Probed /v1/saved → 200 with {count, results}",
+      "impact": "Favourites feature fails until correct endpoint discovered.",
+      "evidence": ["/v1/favourites → 404", "/v1/favorites → 404", "/v1/saved → 200 {count: 0, results: []}"]
+    },
+    {
+      "endpoint": "GET /v1/analytics/summary",
+      "category": "missing_endpoint",
+      "documented": "Returns analytics summary with market statistics",
+      "actual": "Returns 404 Not Found. No analytics endpoints exist at any probed path.",
+      "how_found": "Tried /v1/analytics/summary, /v1/analytics, /analytics/summary, /v1/stats, /v1/dashboard — all 404",
+      "impact": "Analytics/insights must be computed client-side from raw data.",
+      "evidence": ["/v1/analytics/summary → 404", "/v1/analytics → 404", "/analytics → 404", "/v1/stats → 404"]
+    },
+    {
+      "endpoint": "GET /health",
+      "category": "timestamps",
+      "documented": "All timestamps use UTC with 'Z' suffix per ISO 8601",
+      "actual": "server_time uses IST offset '+05:30', not UTC 'Z'. Also returns undocumented fields: 'timezone' (Asia/Kolkata) and 'reference_date'.",
+      "how_found": "Called GET /health → server_time: '2026-09-12T04:50:50.606713+05:30'",
+      "impact": "Timezone-sensitive calculations may be wrong if assuming UTC. Listings posted_at has no timezone at all.",
+      "evidence": ["{status:'ok', server_time:'2026-09-12T04:50:50.606713+05:30', timezone:'Asia/Kolkata', reference_date:'2026-09-10T00:00:00+05:30'}"]
+    },
+    {
+      "endpoint": "GET /v1/listings",
+      "category": "timestamps",
+      "documented": "posted_at timestamps follow ISO 8601 with timezone",
+      "actual": "Listing posted_at values have NO timezone suffix (e.g. '2026-04-30T14:57:00'). Rental posted_at values DO have 'Z' suffix. Inconsistent across endpoints.",
+      "how_found": "Inspected posted_at across all records — listings lack timezone, rentals have 'Z'",
+      "impact": "Date comparisons unreliable. Client must assume timezone (IST) for listings but UTC for rentals.",
+      "evidence": ["Listing: '2026-04-30T14:57:00' (no tz)", "Rental: '2026-09-04T00:21:00Z' (has Z)"]
+    },
+    {
+      "endpoint": "GET /v1/localities",
+      "category": "undocumented_endpoint",
+      "documented": "Not documented at all",
+      "actual": "Returns list of localities with listing counts for the user's assigned city: {city, count, results: [{locality, listing_count}]}",
+      "how_found": "Probed /v1/localities as a guess — returned 200 with full locality data",
+      "impact": "Useful undocumented endpoint that simplifies locality filter implementation.",
+      "evidence": ["/v1/localities → 200 {city:'pune', count:10, results: [{locality:'hadapsar', listing_count:417}, ...]}"]
+    },
+    {
+      "endpoint": "GET /v1/rentals",
+      "category": "schema",
+      "documented": "Rental schema should mirror listings with rent-specific fields",
+      "actual": "Rental schema uses 'super_builtup_area' (no underscore before 'up') while listings use 'super_built_up_area'. Also rentals have additional fields: 'title', 'deposit', 'maintenance' not present in listings.",
+      "how_found": "Compared field names between listing and rental JSON responses",
+      "impact": "Shared UI components break if assuming identical field names.",
+      "evidence": ["Listing: super_built_up_area", "Rental: super_builtup_area"]
+    },
+    {
+      "endpoint": "GET /v1/projects",
+      "category": "data_quality",
+      "documented": "price_min and price_max represent the project's price range",
+      "actual": "price_min and price_max use MIXED UNITS. Some values are in lakhs (30-99), others in crores (1-5). 320 out of 440 projects have price_min > price_max due to unit inconsistency.",
+      "how_found": "Cross-referenced project prices with listing prices for same project_id. P30013 min=36.6 max=96.2 (both lakhs) matches listings 31-108L. P30001 min=80 max=3.22 (min in lakhs, max in crores).",
+      "impact": "Price range calculations are unreliable. 73% of projects show inverted min/max.",
+      "evidence": ["P30013: min=36.6 max=96.2 (both lakhs, listings: 31.1L-108L)", "P30001: min=80 max=3.22 (min=80L, max=3.22Cr, listings: 72.6L-91.6L)", "320/440 projects have price_min > price_max"]
+    },
+    {
+      "endpoint": "GET /v1/listings",
+      "category": "data_quality",
+      "documented": "Listings represent valid property data",
+      "actual": "7 listings have prices in the range ₹7,910-₹17,510 while the city median is ~₹1.1Cr. These appear to have prices in wrong units or are fake/test entries. All from magichomes/squarelane/100acres/zerobroker websites.",
+      "how_found": "Sorted all listings by price, found 7 with price < ₹50,000 (1000x below median)",
+      "impact": "Skews all statistical calculations if not excluded.",
+      "evidence": ["MAG-3000012: price=7910 (carpet=1136 sqft, Balewadi)", "SQU-3000349: price=13900 (carpet=1112 sqft, Hinjewadi)"]
+    }
+  ]
+}
