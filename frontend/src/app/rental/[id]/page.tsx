@@ -64,14 +64,9 @@ export default function RentalDetail({ params }: { params: { id: string } }) {
           <div className="flex justify-between"><span className="text-secondary">Posted by</span><span className="capitalize">{rental.posted_by}</span></div>
           <div className="flex justify-between"><span className="text-secondary">Name</span><span>{rental.posted_by_name}</span></div>
           <div className="flex justify-between"><span className="text-secondary">Phone</span><span>{rental.posted_by_contact}</span></div>
+          <div className="flex justify-between"><span className="text-secondary">Source Website</span><span className="capitalize">{rental.website}</span></div>
         </div>
       </div>
-
-      {rental.listing_url && (
-        <a href={rental.listing_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 border border-border rounded-xl hover:bg-white transition text-sm">
-          View on {rental.website} ↗
-        </a>
-      )}
     </div>
   );
 }

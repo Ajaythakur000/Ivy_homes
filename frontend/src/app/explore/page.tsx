@@ -142,17 +142,39 @@ export default function ExplorePage() {
         {/* Client-side filters (API ignores these) */}
         <input 
           type="number"
+          min="0"
           placeholder="Min Price (L)"
           value={minPrice}
-          onChange={e => setMinPrice(e.target.value)}
+          onChange={e => {
+            const val = e.target.value;
+            if (val === '' || Number(val) >= 0) {
+              setMinPrice(val);
+              // If max is set and now less than min, clear max
+              if (maxPrice && val && Number(maxPrice) < Number(val)) setMaxPrice('');
+            }
+          }}
+          onWheel={e => (e.target as HTMLInputElement).blur()}
           className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] w-32 text-sm"
         />
         <input 
           type="number"
+          min="0"
           placeholder="Max Price (L)"
           value={maxPrice}
-          onChange={e => setMaxPrice(e.target.value)}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] w-32 text-sm"
+          onChange={e => {
+            const val = e.target.value;
+            if (val === '' || Number(val) >= 0) {
+              // Only accept if empty or >= minPrice
+              if (val === '' || !minPrice || Number(val) >= Number(minPrice)) {
+                setMaxPrice(val);
+              }
+            }
+          }}
+          onWheel={e => (e.target as HTMLInputElement).blur()}
+          className={`border rounded-lg px-3 py-2 bg-[#F7F6F2] w-32 text-sm ${
+            maxPrice && minPrice && Number(maxPrice) < Number(minPrice)
+              ? 'border-red-400' : 'border-border'
+          }`}
         />
         <select 
           value={furnishing} 

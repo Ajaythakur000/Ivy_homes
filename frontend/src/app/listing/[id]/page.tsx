@@ -135,19 +135,12 @@ export default function ListingDetail({ params }: { params: { id: string } }) {
           <h3 className="font-medium mb-3">Details</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between"><span className="text-secondary">Listing ID</span><span className="font-mono text-xs">{listing.listing_id}</span></div>
-            <div className="flex justify-between"><span className="text-secondary">Website</span><span>{listing.website}</span></div>
+            <div className="flex justify-between"><span className="text-secondary">Source Website</span><span className="capitalize">{listing.website}</span></div>
             <div className="flex justify-between"><span className="text-secondary">Posted</span><span>{new Date(listing.posted_at).toLocaleDateString()}</span></div>
             {listing.project_id && <div className="flex justify-between"><span className="text-secondary">Project</span><Link href={`/project/${listing.project_id}`} className="text-accent hover:underline">{listing.project_id}</Link></div>}
           </div>
         </div>
       </div>
-
-      {/* External Link */}
-      {listing.listing_url && (
-        <a href={listing.listing_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 border border-border rounded-xl hover:bg-white transition text-sm">
-          View on {listing.website} ↗
-        </a>
-      )}
     </div>
   );
 }
