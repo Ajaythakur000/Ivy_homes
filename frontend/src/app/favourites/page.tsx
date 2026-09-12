@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { getSaved, toggleSaved } from '@/lib/api';
+import { useAuth } from '@/lib/AuthContext';
 import Link from 'next/link';
 
 function formatPrice(price: number) {
@@ -10,10 +12,19 @@ function formatPrice(price: number) {
 }
 
 export default function FavouritesPage() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const [savedItems, setSavedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { loadSaved(); }, []);
+  useEffect(() => {
+    // Redirect unauthenticated users to login
+    if (!isAuthenticated) {
+      router.replace('/login');
+      return;
+    }
+    loadSaved();
+  }, [isAuthenticated, router]);
 
   async function loadSaved() {
     setLoading(true);
@@ -30,6 +41,11 @@ export default function FavouritesPage() {
       await toggleSaved(id, true);
       setSavedItems(prev => prev.filter(item => item.listing_id !== id));
     } catch (err) { console.error(err); }
+  }
+
+  // Show nothing while redirecting
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (

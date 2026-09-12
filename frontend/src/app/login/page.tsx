@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { login } from '@/lib/api';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -9,13 +10,21 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { isAuthenticated, onLoginSuccess } = useAuth();
+
+  // If already logged in, redirect to explore
+  if (isAuthenticated) {
+    router.replace('/explore');
+    return null;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      await login(email, password);
+      const data = await login(email, password);
+      onLoginSuccess(data.user?.email || email);
       router.push('/explore');
     } catch (err: any) {
       setError('Login failed. Please check your credentials.');
@@ -26,7 +35,8 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto mt-20 p-8 border border-border rounded-xl bg-white shadow-sm">
-      <h1 className="text-2xl font-semibold mb-6">Login to Ivy Homes</h1>
+      <h1 className="text-2xl font-semibold mb-2">Login to Ivy Homes</h1>
+      <p className="text-secondary text-sm mb-6">Use a demo account: demo1@ivy.homes, demo2@ivy.homes, or demo3@ivy.homes</p>
       <form onSubmit={handleLogin} className="space-y-4">
         <div>
           <label className="block text-sm font-medium mb-1">Email</label>
@@ -35,7 +45,7 @@ export default function LoginPage() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-accent"
-            placeholder="demo@ivy.homes"
+            placeholder="demo1@ivy.homes"
             required
           />
         </div>

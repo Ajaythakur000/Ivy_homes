@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import './globals.css'
 import Navbar from '@/components/Navbar'
+import Providers from '@/components/Providers'
 
 export const metadata: Metadata = {
   title: 'Ivy Homes Property Platform',
@@ -16,10 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={GeistSans.className}>
       <body>
-        <Navbar />
-        <main className="min-h-screen pt-16">
-          {children}
-        </main>
+        <Providers>
+          <Navbar />
+          <main className="min-h-screen pt-16">
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   )

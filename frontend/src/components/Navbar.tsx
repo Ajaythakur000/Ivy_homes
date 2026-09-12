@@ -1,9 +1,12 @@
 'use client'
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { isAuthenticated, userEmail, logout } = useAuth();
 
   const navLinks = [
     { href: '/explore', label: 'Explore' },
@@ -12,6 +15,11 @@ export default function Navbar() {
     { href: '/insights', label: 'Insights' },
     { href: '/favourites', label: 'Saved' },
   ];
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-background/80 backdrop-blur-md border-b border-border z-50">
@@ -33,12 +41,27 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Link 
-            href="/login"
-            className="text-sm font-medium px-4 py-2 bg-foreground text-background rounded-md"
-          >
-            Login
-          </Link>
+
+          {isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              {userEmail && (
+                <span className="text-xs text-secondary hidden md:inline">{userEmail}</span>
+              )}
+              <button
+                onClick={handleLogout}
+                className="text-sm font-medium px-4 py-2 border border-border text-foreground rounded-md hover:bg-white transition"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link 
+              href="/login"
+              className="text-sm font-medium px-4 py-2 bg-foreground text-background rounded-md"
+            >
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </nav>
