@@ -106,9 +106,17 @@ console.log(`\nQ7: ${costliest.project_id}, raw=${costliest.raw}, INR=${costlies
 // FINAL ANSWERS SAVE
 // ============================================================
 // BUG #1: Fixed reference to use costliest.price_max_inr instead of undefined costliestInr
+
+// Calculate unique properties by physical attributes
+const uniquePhysicalProps = new Set();
+listings.forEach(l => {
+  const hash = `${l.locality}|${l.apartment_name}|${l.carpet_area}|${l.floor}`;
+  uniquePhysicalProps.add(hash);
+});
+
 const finalAnswers = {
   total_listing_records: listings.length,
-  unique_properties: listings.length,
+  unique_properties: uniquePhysicalProps.size,
   active_listings: listings.filter(l => l.is_live === true).length,
   corrupt_listing_ids: corruptIds.sort(),
   total_monthly_rent: (() => {
@@ -145,5 +153,6 @@ writeFileSync(join(__dirname, '../../submission.json'), JSON.stringify(subData, 
 
 let anData = JSON.parse(readFileSync(join(__dirname, '../../frontend/public/analysis-data.json'), 'utf8'));
 anData.answers = finalAnswers;
+anData.findings = subData.findings; // Sync findings array to analysis-data.json
 writeFileSync(join(__dirname, '../../frontend/public/analysis-data.json'), JSON.stringify(anData, null, 2));
 console.log('Synced answers to submission.json and frontend/public/analysis-data.json');

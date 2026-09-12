@@ -116,8 +116,9 @@ Used **offset-based pagination** (the correct method) with `limit=50` to fetch a
 
 **Q3 (Active Listings):** 2998 — filtered `is_live === true`.
 
-**Q4 (Corrupt Listings):** 21 records with structural data violations:
+**Q4 (Corrupt Listings):** 28 records with structural data violations:
 - Negative prices (e.g., -15,890,000)
+- Suspiciously low prices indicating incorrect units (e.g. price < 50000)
 - Carpet area > super built-up area
 - Floor number > total building floors
 - Negative bedroom/bathroom counts
