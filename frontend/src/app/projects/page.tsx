@@ -6,84 +6,73 @@ import Link from 'next/link';
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+  const [total, setTotal] = useState(0);
   const [locality, setLocality] = useState('');
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
-  const limit = 20;
+  const limit = 24;
 
   useEffect(() => {
     async function loadData() {
       setLoading(true);
       try {
-        const data = await fetchProjects({ 
-          city_id: 3, 
-          locality,
-          offset,
-          limit
-        });
+        const params: Record<string, any> = { offset, limit };
+        if (locality) params.locality = locality;
+        const data = await fetchProjects(params);
         setProjects(prev => offset === 0 ? (data.results || []) : [...prev, ...(data.results || [])]);
-        setHasMore(data.has_more);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+        setHasMore(data.has_more ?? false);
+        setTotal(data.total ?? 0);
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
     }
     loadData();
   }, [locality, offset]);
 
-  const handleFilterChange = () => {
-    setOffset(0);
-  };
+  const reset = () => { setOffset(0); setProjects([]); };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-semibold mb-8">Premium Projects</h1>
+      <div className="mb-8">
+        <h1 className="text-3xl font-semibold">Projects</h1>
+        <p className="text-secondary mt-1">{total.toLocaleString()} projects in Pune</p>
+      </div>
       
-      <div className="flex flex-wrap gap-4 mb-8">
-        <select 
-          value={locality} 
-          onChange={e => { setLocality(e.target.value); handleFilterChange(); }}
-          className="border border-border rounded-md px-3 py-2 bg-white"
-        >
+      <div className="flex flex-wrap gap-3 mb-8">
+        <select value={locality} onChange={e => { setLocality(e.target.value); reset(); }}
+          className="border border-border rounded-lg px-3 py-2 bg-white text-sm">
           <option value="">All Localities</option>
-          <option value="hadapsar">Hadapsar</option>
-          <option value="wakad">Wakad</option>
-          <option value="hinjewadi">Hinjewadi</option>
-          <option value="aundh">Aundh</option>
-          <option value="kothrud">Kothrud</option>
+          {['hadapsar','wakad','hinjewadi','aundh','kothrud','magarpatta','baner','kharadi','viman nagar','balewadi'].map(l => (
+            <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>
+          ))}
         </select>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {projects.map(item => (
-          <Link key={item.id} href={`/project/${item.id}`} className="block border border-border rounded-lg overflow-hidden hover:shadow-md transition bg-white">
-            <div className="h-48 bg-gray-200 flex items-center justify-center">
-              {item.images?.[0] ? (
-                <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-secondary">No image</span>
-              )}
+          <Link key={item.project_id} href={`/project/${item.project_id}`} className="group block border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-white">
+            <div className="h-40 bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
+              <span className="text-muted text-sm capitalize">{item.project_status}</span>
             </div>
             <div className="p-4">
-              <h3 className="font-semibold text-lg truncate">{item.name || 'Unnamed Project'}</h3>
-              <p className="text-secondary text-sm">{item.locality}</p>
-              <div className="mt-2 font-medium">₹{item.price_min} Lakhs - ₹{item.price_max} Lakhs</div>
-              <div className="text-sm text-secondary mt-1">{item.developer_name}</div>
+              <h3 className="font-semibold truncate group-hover:text-accent transition-colors">{item.apartment_name}</h3>
+              <p className="text-secondary text-sm capitalize">{item.locality} · {item.developer_name}</p>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="font-semibold">₹{Math.min(item.price_min, item.price_max)} - {Math.max(item.price_min, item.price_max)} L</span>
+              </div>
+              <div className="mt-2 flex gap-2 text-xs flex-wrap">
+                <span className="text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{item.total_units} units</span>
+                <span className="text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{item.total_towers} towers</span>
+                <span className="text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{item.min_area_sqft}-{item.max_area_sqft} sqft</span>
+              </div>
             </div>
           </Link>
         ))}
       </div>
       
-      {loading && <div className="text-center py-4">Loading more...</div>}
-      
+      {loading && <div className="text-center py-8 text-secondary">Loading...</div>}
       {!loading && hasMore && (
-        <div className="text-center">
-          <button 
-            onClick={() => setOffset(prev => prev + limit)}
-            className="px-6 py-2 border border-border rounded-md hover:bg-gray-50 transition"
-          >
+        <div className="text-center py-4">
+          <button onClick={() => setOffset(prev => prev + limit)} className="px-8 py-2.5 border border-border rounded-xl hover:bg-white transition text-sm font-medium">
             Load More
           </button>
         </div>
