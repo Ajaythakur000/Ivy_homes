@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { fetchApi } from '@/lib/api';
 import Link from 'next/link';
 
 export default function ProjectDetail({ params }: { params: { id: string } }) {
@@ -8,11 +7,20 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchApi(`/v1/projects/${params.id}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(setProject)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    async function loadProject() {
+      try {
+        const res = await fetch(`/api/proxy/v1/projects/${params.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProject(data);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProject();
   }, [params.id]);
 
   if (loading) return <div className="max-w-4xl mx-auto px-6 py-16 text-center text-secondary">Loading...</div>;

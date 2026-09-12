@@ -1,141 +1,104 @@
 'use client'
 import { useState, useEffect } from 'react';
-
-function formatNum(n: number) {
-  return n?.toLocaleString('en-IN') ?? 'N/A';
-}
+import Link from 'next/link';
 
 export default function InsightsPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch('/analysis-data.json')
       .then(r => r.json())
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
+      .then(d => { setData(d); setLoading(false); })
+      .catch(e => { setError(true); setLoading(false); });
   }, []);
 
-  if (loading) return <div className="max-w-5xl mx-auto px-6 py-16 text-center text-secondary">Loading insights...</div>;
-  if (!data) return <div className="max-w-5xl mx-auto px-6 py-16 text-center text-secondary">No analysis data found.</div>;
+  if (loading) return <div className="max-w-7xl mx-auto px-6 py-16 text-center text-secondary">Loading insights...</div>;
+  if (error || !data) return <div className="max-w-7xl mx-auto px-6 py-16 text-center text-red-500">Failed to load insights data.</div>;
 
-  const answers = data.answers || {};
-  const findings = data.findings || [];
-  const stats = data.statistics || {};
+  const { answers } = data;
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-semibold mb-1">Intelligence Report</h1>
-      <p className="text-secondary mb-10">Pune property market analysis · Reference date: 2026-09-10</p>
+    <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="mb-10">
+        <h1 className="text-4xl font-semibold tracking-tight text-primary mb-3">Intelligence Dashboard</h1>
+        <p className="text-secondary text-lg">Key metrics and analytical findings from the Ivy Homes dataset.</p>
+      </div>
 
-      {/* Key Metrics */}
-      <section className="mb-12">
-        <h2 className="text-xl font-medium mb-4 pb-2 border-b border-border">Key Metrics</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Total Listings', value: formatNum(answers.q1_total_listing_records?.value), sub: `API reports ${formatNum(answers.q1_total_listing_records?.api_reported)}` },
-            { label: 'Unique Properties', value: formatNum(answers.q2_unique_properties?.value) },
-            { label: 'Active Listings', value: formatNum(answers.q3_active_listings?.value), sub: `${((answers.q3_active_listings?.value / answers.q1_total_listing_records?.value) * 100).toFixed(1)}% of total` },
-            { label: 'Last 7 Days', value: formatNum(answers.q8_listings_last_7_days?.value) },
-          ].map((m, i) => (
-            <div key={i} className="p-4 bg-white border border-border rounded-xl">
-              <div className="text-xs text-secondary uppercase tracking-wider">{m.label}</div>
-              <div className="text-2xl font-semibold mt-1">{m.value}</div>
-              {m.sub && <div className="text-xs text-muted mt-1">{m.sub}</div>}
-            </div>
-          ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        {/* Card 1 */}
+        <div className="p-6 border border-border rounded-xl bg-white shadow-sm hover:shadow-md transition">
+          <div className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">Total Records</div>
+          <div className="text-4xl font-semibold text-primary">{answers.total_listing_records.toLocaleString()}</div>
         </div>
-      </section>
+        
+        {/* Card 2 */}
+        <div className="p-6 border border-border rounded-xl bg-white shadow-sm hover:shadow-md transition">
+          <div className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">Unique Properties</div>
+          <div className="text-4xl font-semibold text-primary">{answers.unique_properties.toLocaleString()}</div>
+        </div>
 
-      {/* Q&A Detail */}
-      <section className="mb-12">
-        <h2 className="text-xl font-medium mb-4 pb-2 border-b border-border">Data Questions (Q1–Q10)</h2>
-        <div className="space-y-4">
-          {[
-            { q: 'Q1. Total listing records retrievable', a: formatNum(answers.q1_total_listing_records?.value), note: answers.q1_total_listing_records?.note },
-            { q: 'Q2. Unique physical properties', a: formatNum(answers.q2_unique_properties?.value), note: answers.q2_unique_properties?.note },
-            { q: 'Q3. Active listings (is_live=true)', a: formatNum(answers.q3_active_listings?.value), note: answers.q3_active_listings?.note },
-            { q: 'Q4. Corrupt listing IDs', a: `${answers.q4_corrupt_listing_ids?.value} records`, note: answers.q4_corrupt_listing_ids?.criteria },
-            { q: 'Q5. Total monthly rent (Balewadi)', a: `₹${formatNum(answers.q5_total_monthly_rent?.value)}`, note: answers.q5_total_monthly_rent?.note },
-            { q: 'Q6. Avg price/sqft for 2BHK', a: `₹${formatNum(answers.q6_avg_price_per_sqft_2bhk?.value)}`, note: `Based on ${formatNum(answers.q6_avg_price_per_sqft_2bhk?.eligible_count)} eligible listings` },
-            { q: 'Q7. Costliest project', a: `${answers.q7_costliest_project?.project_id} — ₹${formatNum(answers.q7_costliest_project?.price_max_inr)}`, note: `${answers.q7_costliest_project?.apartment_name}. ${answers.q7_costliest_project?.note}` },
-            { q: 'Q8. Listings in last 7 days', a: formatNum(answers.q8_listings_last_7_days?.value), note: answers.q8_listings_last_7_days?.note },
-            { q: 'Q9. Fake listing IDs', a: `${answers.q9_fake_listing_ids?.value} records`, note: answers.q9_fake_listing_ids?.note },
-            { q: 'Q10. Projects with wrong listing count', a: formatNum(answers.q10_projects_with_wrong_listing_count?.value), note: answers.q10_projects_with_wrong_listing_count?.note },
-          ].map((item, i) => (
-            <div key={i} className="p-4 bg-white border border-border rounded-xl">
-              <div className="flex items-start justify-between">
-                <h3 className="font-medium">{item.q}</h3>
-                <span className="text-lg font-semibold text-accent ml-4 whitespace-nowrap">{item.a}</span>
+        {/* Card 3 */}
+        <div className="p-6 border border-border rounded-xl bg-green-50 shadow-sm hover:shadow-md transition">
+          <div className="text-sm font-medium text-green-700 uppercase tracking-wider mb-2">Active Listings</div>
+          <div className="text-4xl font-semibold text-green-900">{answers.active_listings.toLocaleString()}</div>
+        </div>
+
+        {/* Card 4 */}
+        <div className="p-6 border border-red-200 rounded-xl bg-red-50 shadow-sm hover:shadow-md transition">
+          <div className="text-sm font-medium text-red-700 uppercase tracking-wider mb-2">Corrupt Records</div>
+          <div className="text-4xl font-semibold text-red-900">{answers.corrupt_listing_ids.length}</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {/* Financial Metrics */}
+        <div className="p-8 border border-border rounded-xl bg-white shadow-sm">
+          <h3 className="text-xl font-semibold mb-6">Financial Metrics</h3>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center border-b border-border/50 pb-4">
+              <span className="text-secondary">Total Monthly Rent (Balewadi)</span>
+              <span className="text-xl font-medium">₹{answers.total_monthly_rent.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between items-center border-b border-border/50 pb-4">
+              <span className="text-secondary">Avg Price/sqft (2 BHK)</span>
+              <span className="text-xl font-medium">₹{answers.avg_price_per_sqft_2bhk.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex flex-col border-b border-border/50 pb-4">
+              <span className="text-secondary mb-1">Costliest Project</span>
+              <div className="flex justify-between items-end">
+                <Link href={`/project/${answers.costliest_project.project_id}`} className="text-accent hover:underline font-medium">
+                  {answers.costliest_project.project_id}
+                </Link>
+                <span className="text-xl font-medium">₹{(answers.costliest_project.price_max_inr / 10000000).toFixed(2)} Cr</span>
               </div>
-              {item.note && <p className="text-sm text-secondary mt-2">{item.note}</p>}
             </div>
-          ))}
+          </div>
         </div>
-      </section>
 
-      {/* API Findings */}
-      <section className="mb-12">
-        <h2 className="text-xl font-medium mb-4 pb-2 border-b border-border">API Investigation Findings</h2>
-        <p className="text-sm text-secondary mb-4">{findings.length} discrepancies found between documentation and actual API behavior</p>
-        <div className="space-y-3">
-          {findings.map((f: any, i: number) => (
-            <div key={i} className="p-4 bg-white border border-border rounded-xl">
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`text-xs px-2 py-0.5 rounded-full ${
-                  f.severity === 'critical' ? 'bg-red-100 text-red-700' :
-                  f.severity === 'high' ? 'bg-orange-100 text-orange-700' :
-                  f.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-gray-100 text-gray-600'
-                }`}>{f.severity}</span>
-                <span className="text-xs text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{f.category}</span>
+        {/* Platform Integrity */}
+        <div className="p-8 border border-border rounded-xl bg-white shadow-sm">
+          <h3 className="text-xl font-semibold mb-6">Platform Integrity</h3>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center border-b border-border/50 pb-4">
+              <span className="text-secondary">New Listings (Last 7 Days)</span>
+              <span className="text-xl font-medium">{answers.listings_last_7_days}</span>
+            </div>
+            <div className="flex flex-col border-b border-border/50 pb-4">
+              <span className="text-secondary mb-1">Fake/Fraud Listings</span>
+              <div className="flex justify-between items-end">
+                <span className="text-xl font-medium text-red-600">{answers.fake_listing_ids.length} detected</span>
               </div>
-              <h3 className="font-medium">{f.title}</h3>
-              <p className="text-sm text-secondary mt-1">{f.detail}</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Market Stats */}
-      <section className="mb-12">
-        <h2 className="text-xl font-medium mb-4 pb-2 border-b border-border">Market Statistics</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-white border border-border rounded-xl">
-            <h3 className="font-medium mb-3">Listings by Website</h3>
-            <div className="space-y-1 text-sm">
-              {(stats.websites || []).map((w: string, i: number) => (
-                <div key={i} className="flex justify-between text-secondary"><span>{w}</span></div>
-              ))}
-            </div>
-          </div>
-          <div className="p-4 bg-white border border-border rounded-xl">
-            <h3 className="font-medium mb-3">Listings by Locality</h3>
-            <div className="space-y-1 text-sm">
-              {(stats.localities || []).map((l: string, i: number) => (
-                <div key={i} className="flex justify-between text-secondary"><span>{l}</span></div>
-              ))}
-            </div>
-          </div>
-          <div className="p-4 bg-white border border-border rounded-xl">
-            <h3 className="font-medium mb-3">Posted By</h3>
-            <div className="space-y-1 text-sm text-secondary">
-              {stats.posted_by_breakdown && Object.entries(stats.posted_by_breakdown).map(([k, v]: [string, any]) => (
-                <div key={k} className="flex justify-between capitalize"><span>{k}</span><span className="font-medium text-primary">{formatNum(v)}</span></div>
-              ))}
-            </div>
-          </div>
-          <div className="p-4 bg-white border border-border rounded-xl">
-            <h3 className="font-medium mb-3">Verification</h3>
-            <div className="space-y-1 text-sm text-secondary">
-              {stats.verified_breakdown && Object.entries(stats.verified_breakdown).map(([k, v]: [string, any]) => (
-                <div key={k} className="flex justify-between capitalize"><span>{k}</span><span className="font-medium text-primary">{formatNum(v)}</span></div>
-              ))}
+            <div className="flex justify-between items-center border-b border-border/50 pb-4">
+              <span className="text-secondary">Projects w/ Count Mismatch</span>
+              <span className="text-xl font-medium">{answers.projects_with_wrong_listing_count}</span>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+      
     </div>
   );
 }

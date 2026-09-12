@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { fetchApi } from '@/lib/api';
 import Link from 'next/link';
 
 export default function RentalDetail({ params }: { params: { id: string } }) {
@@ -8,7 +7,7 @@ export default function RentalDetail({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchApi(`/v1/rentals/${params.id}`)
+    fetch(`/api/proxy/v1/rentals/${params.id}`)
       .then(r => r.ok ? r.json() : null)
       .then(setRental)
       .catch(console.error)

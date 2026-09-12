@@ -4,6 +4,8 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Providers from '@/components/Providers'
 
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+
 export const metadata: Metadata = {
   title: 'Ivy Homes Property Platform',
   description: 'Clean, editorial property platform',
@@ -20,7 +22,9 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           <main className="min-h-screen pt-16">
-            {children}
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
           </main>
         </Providers>
       </body>
