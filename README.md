@@ -126,11 +126,11 @@ Used **offset-based pagination** (the correct method) with `limit=50` to fetch a
 
 **Q6 (Avg Price/sqft 2BHK):** ₹18,314.23 — computed as mean of (price/carpet_area) for eligible 2BHK listings (is_live=true, not corrupt, not fake, positive price & area).
 
-**Q7 (Costliest Project):** P30394 (Brigade Park) — price_max=99.9 lakhs = ₹99,90,000. Cross-referenced project prices with listing prices to determine unit. Found mixed units (some lakhs, some crores) across projects.
+**Q7 (Costliest Project):** P30198 (₹3,83,00,000). To normalize mixed project price units (Lakhs vs Crores), the script infers the correct unit by comparing the project's advertised price_max against the absolute highest live individual listing price for that project.
 
 **Q8 (Last 7 Days):** 128 — posted_at between 2026-09-03 and 2026-09-10 IST.
 
-**Q9 (Fake Listings):** 7 listings with prices ₹7,910-₹17,510 (1000x below median of ₹1.1Cr). These are either in wrong units or fabricated entries. Additional signal: 76+ seller identities claim all three roles (owner/agent/builder).
+**Q9 (Fake Listings):** 4 listings dynamically identified as fake (spam) by flagging properties where exact duplicated descriptions are posted across completely distinct property names/localities, indicating spam.
 
 **Q10 (Wrong Listing Count):** 317 out of 440 projects — project's `total_listings` doesn't match actual count of listings with that `project_id`.
 
