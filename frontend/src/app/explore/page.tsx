@@ -1,8 +1,10 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { fetchListings } from '@/lib/api';
+import { useAuth } from '@/lib/AuthContext';
 import { useFavourites } from '@/lib/FavouritesContext';
 import Link from 'next/link';
+import CustomSelect from '@/components/CustomSelect';
 
 function formatPrice(price: number) {
   if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
@@ -91,68 +93,69 @@ export default function ExplorePage() {
           <p className="text-secondary mt-1">{total.toLocaleString()} properties in Pune</p>
         </div>
         <div className="flex items-center gap-3">
-          <select
-            value={sortBy ? `${sortBy}-${sortOrder}` : ''}
-            onChange={e => {
-              const [s, o] = e.target.value.split('-');
+          <CustomSelect 
+            value={sortBy ? `${sortBy}-${sortOrder}` : ''} 
+            onChange={val => {
+              const [s, o] = val.split('-');
               setSortBy(s || ''); setSortOrder(o || 'desc');
               resetAndReload();
             }}
-            className="border border-white/[0.08] rounded-lg px-3 py-2 bg-surface text-foreground text-sm"
-          >
-            <option value="">Default Order</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="posted_at-desc">Newest First</option>
-            <option value="posted_at-asc">Oldest First</option>
-          </select>
+            options={[
+              { value: '', label: 'Default Order' },
+              { value: 'price-asc', label: 'Price: Low to High' },
+              { value: 'price-desc', label: 'Price: High to Low' },
+              { value: 'posted_at-desc', label: 'Newest First' },
+              { value: 'posted_at-asc', label: 'Oldest First' }
+            ]}
+            className="w-48"
+          />
         </div>
       </div>
       
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-8 p-4 bg-surface border border-white/[0.08] rounded-xl">
-        <select 
-          value={locality} 
-          onChange={e => { setLocality(e.target.value); resetAndReload(); }}
-          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm"
-        >
-          <option value="">All Localities</option>
-          <option value="hadapsar">Hadapsar</option>
-          <option value="wakad">Wakad</option>
-          <option value="hinjewadi">Hinjewadi</option>
-          <option value="aundh">Aundh</option>
-          <option value="kothrud">Kothrud</option>
-          <option value="magarpatta">Magarpatta</option>
-          <option value="baner">Baner</option>
-          <option value="kharadi">Kharadi</option>
-          <option value="viman nagar">Viman Nagar</option>
-          <option value="balewadi">Balewadi</option>
-        </select>
+        <CustomSelect
+          value={locality}
+          onChange={val => { setLocality(val); resetAndReload(); }}
+          options={[
+            { value: '', label: 'All Localities' },
+            { value: 'hadapsar', label: 'Hadapsar' },
+            { value: 'wakad', label: 'Wakad' },
+            { value: 'hinjewadi', label: 'Hinjewadi' },
+            { value: 'aundh', label: 'Aundh' },
+            { value: 'kothrud', label: 'Kothrud' },
+            { value: 'magarpatta', label: 'Magarpatta' },
+            { value: 'baner', label: 'Baner' },
+            { value: 'kharadi', label: 'Kharadi' },
+            { value: 'viman nagar', label: 'Viman Nagar' },
+            { value: 'balewadi', label: 'Balewadi' }
+          ]}
+        />
 
-        <select 
-          value={bhk} 
-          onChange={e => { setBhk(e.target.value); resetAndReload(); }}
-          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm"
-        >
-          <option value="">All BHK</option>
-          <option value="1">1 BHK</option>
-          <option value="2">2 BHK</option>
-          <option value="3">3 BHK</option>
-          <option value="4">4 BHK</option>
-          <option value="5">5 BHK</option>
-        </select>
+        <CustomSelect
+          value={bhk}
+          onChange={val => { setBhk(val); resetAndReload(); }}
+          options={[
+            { value: '', label: 'All BHK' },
+            { value: '1', label: '1 BHK' },
+            { value: '2', label: '2 BHK' },
+            { value: '3', label: '3 BHK' },
+            { value: '4', label: '4 BHK' },
+            { value: '5', label: '5 BHK' }
+          ]}
+        />
 
-        <select 
-          value={propertyType} 
-          onChange={e => { setPropertyType(e.target.value); resetAndReload(); }}
-          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm"
-        >
-          <option value="">All Types</option>
-          <option value="apartment">Apartment</option>
-          <option value="villa">Villa</option>
-          <option value="builder floor">Builder Floor</option>
-          <option value="penthouse">Penthouse</option>
-        </select>
+        <CustomSelect
+          value={propertyType}
+          onChange={val => { setPropertyType(val); resetAndReload(); }}
+          options={[
+            { value: '', label: 'All Types' },
+            { value: 'apartment', label: 'Apartment' },
+            { value: 'villa', label: 'Villa' },
+            { value: 'builder floor', label: 'Builder Floor' },
+            { value: 'penthouse', label: 'Penthouse' }
+          ]}
+        />
 
         <input 
           type="number"
@@ -184,16 +187,16 @@ export default function ExplorePage() {
           onWheel={e => (e.target as HTMLInputElement).blur()}
           className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] w-32 text-sm"
         />
-        <select 
-          value={furnishing} 
-          onChange={e => { setFurnishing(e.target.value); resetAndReload(); }}
-          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm"
-        >
-          <option value="">Any Furnishing</option>
-          <option value="fully-furnished">Fully Furnished</option>
-          <option value="semi-furnished">Semi Furnished</option>
-          <option value="unfurnished">Unfurnished</option>
-        </select>
+        <CustomSelect
+          value={furnishing}
+          onChange={val => { setFurnishing(val); resetAndReload(); }}
+          options={[
+            { value: '', label: 'Any Furnishing' },
+            { value: 'fully-furnished', label: 'Fully Furnished' },
+            { value: 'semi-furnished', label: 'Semi Furnished' },
+            { value: 'unfurnished', label: 'Unfurnished' }
+          ]}
+        />
       </div>
 
       {/* Results */}
@@ -203,11 +206,11 @@ export default function ExplorePage() {
           const hasError = item.price < 0 || !item.apartment_name;
           
           return (
-            <div key={item.listing_id} className="group relative flex flex-col border border-white/[0.04] rounded-xl overflow-hidden hover:shadow-lg hover:shadow-black/40 transition-all duration-300 bg-surface">
+            <div key={item.listing_id} className="group relative flex flex-col border border-white/[0.08] rounded-2xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:border-white/[0.15] hover:-translate-y-1 transition-all duration-300 bg-[#15181E]">
               <Link href={`/listing/${item.listing_id}`} className="absolute inset-0 z-0" aria-label={`View ${item.apartment_name}`} />
               
               <div 
-                className="h-48 relative flex items-center justify-center border-b border-white/[0.08]/50"
+                className="h-52 relative flex items-center justify-center border-b border-white/[0.08] shadow-inner shadow-black/20"
                 style={{
                   backgroundColor: '#1A1D24',
                   backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23686863' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E")`
@@ -233,12 +236,12 @@ export default function ExplorePage() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    favourites.toggleSavedItem(item.listing_id);
+                    favourites.toggleSavedItem(item.listing_id, item);
                   }}
                   className={`absolute top-3 right-3 p-2 rounded-full z-10 transition-all shadow-sm border ${
                     isSaved 
-                      ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20' 
-                      : 'bg-black/40 text-secondary border-white/10 hover:text-accent hover:border-accent'
+                      ? 'bg-[#0F1115]/80 backdrop-blur-md text-red-400 border-red-500/30 hover:bg-red-500/20 hover:scale-105' 
+                      : 'bg-[#0F1115]/80 backdrop-blur-md text-secondary border-white/[0.15] hover:text-accent hover:border-accent hover:scale-105'
                   }`}
                   aria-label={isSaved ? "Remove from saved" : "Save property"}
                 >
@@ -249,12 +252,12 @@ export default function ExplorePage() {
               </div>
               
               <div className="p-5 flex flex-col flex-grow z-10 pointer-events-none">
-                <h3 className="font-semibold text-lg leading-tight truncate group-hover:text-accent transition-colors">{item.apartment_name || 'Unnamed Property'}</h3>
+                <h3 className="font-semibold text-[1.15rem] leading-tight truncate group-hover:text-accent transition-colors text-foreground">{item.apartment_name || 'Unnamed Property'}</h3>
                 <p className="text-secondary text-sm mt-1 capitalize">{item.locality || 'Unknown location'}</p>
                 
                 <div className="mt-4 flex items-end justify-between">
-                  <span className="font-semibold text-xl tracking-tight">{item.price >= 0 ? formatPrice(item.price) : 'N/A'}</span>
-                  <span className="text-sm font-medium text-secondary">{item.bedroom} BHK <span className="mx-1 opacity-50">|</span> {item.carpet_area} sqft</span>
+                  <span className="font-bold text-xl tracking-tight text-white">{item.price >= 0 ? formatPrice(item.price) : 'N/A'}</span>
+                  <span className="text-sm font-medium text-muted tracking-wide">{item.bedroom} BHK <span className="mx-1 opacity-50">|</span> {item.carpet_area} sqft</span>
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-white/[0.08]/50 flex gap-2">

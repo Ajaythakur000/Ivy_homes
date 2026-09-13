@@ -8,7 +8,7 @@ interface FavouritesState {
   savedItems: any[];
   loading: boolean;
   isSaved: (id: string) => boolean;
-  toggleSavedItem: (id: string) => Promise<void>;
+  toggleSavedItem: (id: string, item?: any) => Promise<void>;
 }
 
 const FavouritesContext = createContext<FavouritesState>({
@@ -67,7 +67,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
     return savedIds.has(id);
   }, [savedIds]);
 
-  const toggleSavedItem = useCallback(async (id: string) => {
+  const toggleSavedItem = useCallback(async (id: string, item?: any) => {
     const currentlySaved = savedIds.has(id);
     
     try {
@@ -78,6 +78,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
           next.delete(id);
           return next;
         });
+        setSavedItems(prev => prev.filter(r => r.listing_id !== id));
       } else {
         await saveListing(id);
         setSavedIds(prev => {
@@ -85,11 +86,18 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
           next.add(id);
           return next;
         });
+        if (item) {
+          setSavedItems(prev => [...prev, item]);
+        } else {
+          // If no item was passed, we'd need to re-fetch the list, 
+          // or at least load this one. But we can just trigger loadSaved for safety.
+          loadSaved();
+        }
       }
     } catch (err) {
       console.error('Failed to toggle saved item', err);
     }
-  }, [savedIds]);
+  }, [savedIds, loadSaved]);
 
   return (
     <FavouritesContext.Provider value={{ savedIds, savedItems, loading, isSaved, toggleSavedItem }}>

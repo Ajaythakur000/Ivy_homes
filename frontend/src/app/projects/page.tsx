@@ -49,7 +49,7 @@ export default function ProjectsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {projects.map(item => (
-          <Link key={item.project_id} href={`/project/${item.project_id}`} className="group block border border-white/[0.04] rounded-xl overflow-hidden hover:shadow-lg hover:shadow-black/40 transition-shadow bg-surface">
+          <Link key={item.project_id} href={`/project/${item.project_id}`} className="group block border border-white/[0.08] rounded-2xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:border-white/[0.15] hover:-translate-y-1 transition-all duration-300 bg-[#15181E]">
             <div className="h-40 bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
               <span className="text-muted text-sm capitalize">{item.project_status}</span>
             </div>

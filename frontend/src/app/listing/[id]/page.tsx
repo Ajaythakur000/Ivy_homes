@@ -32,7 +32,7 @@ export default function ListingDetail({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   const handleSave = async () => {
-    favourites.toggleSavedItem(params.id);
+    favourites.toggleSavedItem(params.id, listing);
   };
 
   if (loading) return <div className="max-w-4xl mx-auto px-6 py-16 text-center text-secondary">Loading listing...</div>;

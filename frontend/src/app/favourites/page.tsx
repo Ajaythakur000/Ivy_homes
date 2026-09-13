@@ -37,26 +37,44 @@ export default function FavouritesPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-semibold mb-8">Saved Properties</h1>
+    <div className="page-container py-12 md:py-16">
+      <h1 className="heading-section mb-12">Saved Properties</h1>
       
       {favLoading ? (
-        <p className="text-secondary py-12 text-center">Loading saved properties...</p>
+        <div className="py-24 flex justify-center">
+          <div className="animate-pulse flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-white/[0.05]"></div>
+            <div className="w-32 h-4 rounded bg-white/[0.05]"></div>
+          </div>
+        </div>
       ) : savedItems.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-secondary text-lg">No saved properties yet</p>
-          <Link href="/explore" className="text-accent hover:underline mt-2 inline-block">Browse listings →</Link>
+        <div className="flex flex-col items-center justify-center py-32 text-center">
+          <div className="w-20 h-20 bg-[#15181E] border border-white/[0.08] rounded-full flex items-center justify-center mb-6 shadow-inner shadow-black/20">
+            <svg className="w-8 h-8 text-secondary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-foreground mb-3">No saved properties yet</h2>
+          <p className="text-secondary max-w-md mx-auto mb-8">
+            Properties you heart will appear here so you can easily compare and revisit them later.
+          </p>
+          <Link href="/explore" className="btn-primary inline-flex items-center gap-2">
+            Browse listings
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {savedItems.map(item => {
             const hasError = item.price < 0 || !item.apartment_name;
             return (
-              <div key={item.listing_id} className="group relative flex flex-col border border-white/[0.04] rounded-xl overflow-hidden hover:shadow-lg hover:shadow-black/40 transition-all duration-300 bg-surface">
+              <div key={item.listing_id} className="group relative flex flex-col border border-white/[0.08] rounded-2xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:border-white/[0.15] hover:-translate-y-1 transition-all duration-300 bg-[#15181E]">
                 <Link href={`/listing/${item.listing_id}`} className="absolute inset-0 z-0" aria-label={`View ${item.apartment_name}`} />
                 
                 <div 
-                  className="h-48 relative flex items-center justify-center border-b border-white/[0.08]/50"
+                  className="h-52 relative flex items-center justify-center border-b border-white/[0.08] shadow-inner shadow-black/20"
                   style={{
                     backgroundColor: '#1A1D24',
                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23686863' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E")`
@@ -77,7 +95,7 @@ export default function FavouritesPage() {
 
                   <button 
                     onClick={(e) => handleRemove(item.listing_id, e)}
-                    className="absolute top-3 right-3 p-2 rounded-full z-10 transition-all shadow-sm border bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20"
+                    className="absolute top-3 right-3 p-2 rounded-full z-10 transition-all shadow-sm border bg-[#0F1115]/80 backdrop-blur-md text-red-400 border-red-500/30 hover:bg-red-500/20 hover:scale-105"
                     title="Remove from saved"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -87,12 +105,12 @@ export default function FavouritesPage() {
                 </div>
                 
                 <div className="p-5 flex flex-col flex-grow z-10 pointer-events-none">
-                  <h3 className="font-semibold text-lg leading-tight truncate group-hover:text-accent transition-colors">{item.apartment_name || 'Unnamed Property'}</h3>
+                  <h3 className="font-semibold text-[1.15rem] leading-tight truncate group-hover:text-accent transition-colors text-foreground">{item.apartment_name || 'Unnamed Property'}</h3>
                   <p className="text-secondary text-sm mt-1 capitalize">{item.locality || 'Unknown location'}</p>
                   
                   <div className="mt-4 flex items-end justify-between">
-                    <span className="font-semibold text-xl tracking-tight">{item.price >= 0 ? formatPrice(item.price) : 'N/A'}</span>
-                    <span className="text-sm font-medium text-secondary">{item.bedroom} BHK <span className="mx-1 opacity-50">|</span> {item.carpet_area} sqft</span>
+                    <span className="font-bold text-xl tracking-tight text-white">{item.price >= 0 ? formatPrice(item.price) : 'N/A'}</span>
+                    <span className="text-sm font-medium text-muted tracking-wide">{item.bedroom} BHK <span className="mx-1 opacity-50">|</span> {item.carpet_area} sqft</span>
                   </div>
                 </div>
               </div>
