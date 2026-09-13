@@ -50,9 +50,9 @@ export default function ProjectsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {projects.map(item => (
           <Link key={item.project_id} href={`/project/${item.project_id}`} className="group block border border-white/[0.08] rounded-2xl overflow-hidden hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:border-white/[0.15] hover:-translate-y-1 transition-all duration-300 bg-[#15181E]">
-            <div className="h-40 bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
-              <span className="text-muted text-sm capitalize">{item.project_status}</span>
-            </div>
+              <div className="h-48 relative flex items-center justify-center bg-gradient-to-br from-[#1A1D24] to-[#0F1115] border-b border-white/[0.08] shadow-inner shadow-black/20">
+                <span className="text-muted text-sm capitalize">{item.project_status}</span>
+              </div>
             <div className="p-4">
               <h3 className="font-semibold truncate group-hover:text-accent transition-colors">{item.apartment_name}</h3>
               <p className="text-secondary text-sm capitalize">{item.locality} · {item.developer_name}</p>

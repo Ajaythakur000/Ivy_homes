@@ -40,12 +40,12 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           <h1 className="text-3xl font-semibold">{project.apartment_name}</h1>
           <p className="text-secondary mt-1">by {project.developer_name} · <span className="capitalize">{project.locality}</span>, Pune</p>
         </div>
-        <div className="text-right">
+        <div className="text-right flex-shrink-0 ml-4">
           <span className={`text-xs px-3 py-1 rounded-full ${
-            project.project_status === 'completed' ? 'bg-green-50 text-green-700' :
-            project.project_status === 'under construction' ? 'bg-yellow-50 text-yellow-700' :
-            'bg-blue-50 text-blue-700'
-          } capitalize`}>{project.project_status}</span>
+            project.project_status === 'completed' ? 'bg-accent/10 text-accent border border-accent/20' :
+            project.project_status === 'under construction' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+            'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+          } capitalize whitespace-nowrap`}>{project.project_status}</span>
         </div>
       </div>
 
@@ -65,9 +65,9 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           { label: 'Possession', value: project.possession_date || 'N/A' },
           { label: 'Listings', value: project.total_listings },
         ].map((item, i) => (
-          <div key={i} className="p-4 border border-white/[0.08] rounded-xl bg-surface">
-            <div className="text-xs text-secondary uppercase tracking-wide">{item.label}</div>
-            <div className="font-semibold mt-1">{item.value}</div>
+          <div key={i} className="min-w-0 p-4 border border-white/[0.08] rounded-xl bg-[#15181E]">
+            <div className="text-xs text-secondary uppercase tracking-wide truncate">{item.label}</div>
+            <div className="font-semibold mt-1 break-words [overflow-wrap:anywhere]">{item.value}</div>
           </div>
         ))}
       </div>
@@ -81,12 +81,6 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
             ))}
           </div>
         </div>
-      )}
-
-      {project.project_url && (
-        <a href={project.project_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 btn-secondary text-sm">
-          View Project Page ↗
-        </a>
       )}
     </div>
   );

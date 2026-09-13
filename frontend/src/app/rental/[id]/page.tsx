@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { cleanDisplayDescription } from '@/lib/formatters';
 
 export default function RentalDetail({ params }: { params: { id: string } }) {
   const [rental, setRental] = useState<any>(null);
@@ -54,7 +55,7 @@ export default function RentalDetail({ params }: { params: { id: string } }) {
 
       <div className="mb-8">
         <h2 className="text-xl font-medium mb-3">Description</h2>
-        <p className="text-secondary leading-relaxed">{rental.description || 'No description.'}</p>
+        <p className="text-secondary leading-relaxed">{cleanDisplayDescription(rental.description)}</p>
       </div>
 
       <div className="p-5 border border-white/[0.08] rounded-xl bg-surface mb-8">

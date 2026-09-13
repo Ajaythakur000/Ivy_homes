@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useFavourites } from '@/lib/FavouritesContext';
 import Link from 'next/link';
+import { cleanDisplayDescription } from '@/lib/formatters';
 
 function formatPrice(price: number) {
   if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
@@ -114,7 +115,7 @@ export default function ListingDetail({ params }: { params: { id: string } }) {
       {/* Description */}
       <div className="mb-8">
         <h2 className="text-xl font-medium mb-3">About this property</h2>
-        <p className="text-secondary leading-relaxed">{listing.description || 'No description available.'}</p>
+        <p className="text-secondary leading-relaxed">{cleanDisplayDescription(listing.description)}</p>
       </div>
 
       {/* Contact & Metadata */}
