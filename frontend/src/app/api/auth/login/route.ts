@@ -27,13 +27,13 @@ export async function POST(req: NextRequest) {
 
     // Set HttpOnly cookies — never accessible to JS
     response.cookies.set('ivy_token', data.access_token, {
-      httpOnly: true, secure: isProd, sameSite: 'strict', path: '/', maxAge: 900,
+      httpOnly: true, secure: isProd, sameSite: 'lax', path: '/', maxAge: 900,
     });
     response.cookies.set('ivy_refresh', data.refresh_token, {
-      httpOnly: true, secure: isProd, sameSite: 'strict', path: '/', maxAge: 86400,
+      httpOnly: true, secure: isProd, sameSite: 'lax', path: '/', maxAge: 86400,
     });
     response.cookies.set('ivy_email', data.user?.email || email, {
-      httpOnly: false, secure: isProd, sameSite: 'strict', path: '/', maxAge: 86400,
+      httpOnly: false, secure: isProd, sameSite: 'lax', path: '/', maxAge: 86400,
     });
 
     return response;

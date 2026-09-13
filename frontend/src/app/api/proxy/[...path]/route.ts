@@ -49,11 +49,11 @@ async function proxyRequest(req: NextRequest, path: string) {
           const response = NextResponse.json(await res.json(), { status: res.status });
           const isProd = process.env.NODE_ENV === 'production';
           response.cookies.set('ivy_token', data.access_token, {
-            httpOnly: true, secure: isProd, sameSite: 'strict', path: '/', maxAge: 900,
+            httpOnly: true, secure: isProd, sameSite: 'lax', path: '/', maxAge: 900,
           });
           if (data.refresh_token) {
             response.cookies.set('ivy_refresh', data.refresh_token, {
-              httpOnly: true, secure: isProd, sameSite: 'strict', path: '/', maxAge: 86400,
+              httpOnly: true, secure: isProd, sameSite: 'lax', path: '/', maxAge: 86400,
             });
           }
           return response;
