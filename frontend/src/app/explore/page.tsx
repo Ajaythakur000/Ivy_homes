@@ -31,6 +31,21 @@ export default function ExplorePage() {
   const [maxPrice, setMaxPrice] = useState('');
   const [furnishing, setFurnishing] = useState('');
   
+  const [debouncedMinPrice, setDebouncedMinPrice] = useState('');
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState('');
+
+  // Debounce price filter changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (debouncedMinPrice !== minPrice || debouncedMaxPrice !== maxPrice) {
+        setDebouncedMinPrice(minPrice);
+        setDebouncedMaxPrice(maxPrice);
+        resetAndReload();
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [minPrice, maxPrice, debouncedMinPrice, debouncedMaxPrice]);
+
   useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -39,8 +54,8 @@ export default function ExplorePage() {
         if (locality) params.locality = locality;
         if (bhk) params.bhk = bhk;
         if (propertyType) params.property_type = propertyType;
-        if (minPrice) params.min_price = minPrice;
-        if (maxPrice) params.max_price = maxPrice;
+        if (debouncedMinPrice) params.min_price = debouncedMinPrice;
+        if (debouncedMaxPrice) params.max_price = debouncedMaxPrice;
         if (furnishing) params.furnishing = furnishing;
         if (sortBy) { params.sort_by = sortBy; params.order = sortOrder; }
 
@@ -56,21 +71,12 @@ export default function ExplorePage() {
       }
     }
     loadData();
-  }, [locality, bhk, propertyType, minPrice, maxPrice, furnishing, sortBy, sortOrder, offset]);
+  }, [locality, bhk, propertyType, debouncedMinPrice, debouncedMaxPrice, furnishing, sortBy, sortOrder, offset]);
 
   const resetAndReload = () => {
     setOffset(0);
     setListings([]);
   };
-
-  // Debounce price filter changes — only trigger reload 500ms after user stops typing
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      resetAndReload();
-    }, 500);
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minPrice, maxPrice]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">

@@ -69,14 +69,27 @@ export async function GET(req: NextRequest) {
   if (propertyType) baseParams.set('property_type', propertyType);
   if (sortBy) { baseParams.set('sort_by', sortBy); baseParams.set('order', order); }
 
-  // Paginate through everything
-  while (true) {
-    baseParams.set('offset', String(fetchOffset));
-    baseParams.set('limit', String(fetchLimit));
-    const page = await ivyGet(`/v1/listings?${baseParams}`, token);
-    allListings = allListings.concat(page.results || []);
-    if (!page.has_more) break;
-    fetchOffset += fetchLimit;
+  // Fetch first page to get the total count for this specific query
+  baseParams.set('offset', '0');
+  baseParams.set('limit', String(fetchLimit));
+  const firstPage = await ivyGet(`/v1/listings?${baseParams}`, token);
+  allListings = allListings.concat(firstPage.results || []);
+
+  const totalToFetch = firstPage.total || ACTUAL_TOTAL;
+  
+  if (firstPage.has_more) {
+    const promises = [];
+    for (let currentOffset = fetchLimit; currentOffset < totalToFetch; currentOffset += fetchLimit) {
+      const p = new URLSearchParams(baseParams);
+      p.set('offset', String(currentOffset));
+      promises.push(ivyGet(`/v1/listings?${p}`, token));
+    }
+    
+    // Fetch all remaining pages in parallel (API handles concurrent requests easily in <1s)
+    const pages = await Promise.all(promises);
+    for (const page of pages) {
+      allListings = allListings.concat(page.results || []);
+    }
   }
 
   // Apply server-side filters
