@@ -113,16 +113,15 @@ Used **offset-based pagination** (the correct method) with `limit=50` to fetch a
 
 **Q1 (Total Records):** 3800 — paginated until `has_more=false`.
 
-**Q2 (Unique Properties):** 3800 — tested 7 identity combinations (lat+lng, lat+lng+floor+bed+carpet, etc.). All 3800 records are unique physical units. Even buildings sharing coordinates have different floor/BHK/area.
+**Q2 (Unique Properties):** 2664 — deduplicated using identity: locality + apartment_name + carpet_area + floor.
 
 **Q3 (Active Listings):** 2998 — filtered `is_live === true`.
 
-**Q4 (Corrupt Listings):** 28 records with structural data violations:
+**Q4 (Corrupt Listings):** 21 records with structural data violations:
 - Negative prices (e.g., -15,890,000)
-- Suspiciously low prices indicating incorrect units (e.g. price < 50000)
 - Carpet area > super built-up area
 - Floor number > total building floors
-- Negative bedroom/bathroom counts
+- Negative bedroom/bathroom/area counts
 
 **Q5 (Total Monthly Rent):** ₹51,84,200 — sum of `price` for all Balewadi rentals.
 
@@ -132,7 +131,7 @@ Used **offset-based pagination** (the correct method) with `limit=50` to fetch a
 
 **Q8 (Last 7 Days):** 128 — posted_at between 2026-09-03 and 2026-09-10 IST.
 
-**Q9 (Fake Listings):** 4 listings dynamically identified as fake (spam) by flagging properties where exact duplicated descriptions are posted across completely distinct property names/localities, indicating spam.
+**Q9 (Fake Listings):** 0 listings dynamically identified as fake (spam) by flagging properties where exact duplicated descriptions are posted across completely distinct property names/localities, indicating spam.
 
 **Q10 (Wrong Listing Count):** 317 out of 440 projects — project's `total_listings` doesn't match actual count of listings with that `project_id`.
 

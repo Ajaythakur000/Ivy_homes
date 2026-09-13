@@ -11,23 +11,26 @@ const listings = JSON.parse(readFileSync(join(DATA_DIR, 'listings.json'), 'utf-8
 const projects = JSON.parse(readFileSync(join(DATA_DIR, 'projects.json'), 'utf-8'));
 
 // ============================================================
-// BUG #3: Q9 FAKE LISTINGS
+// Q9 FAKE LISTINGS
 // ============================================================
 console.log('\n\n=== COMPILING FAKE LISTING IDS ===');
-const descCount = {};
+const descMap = {};
 listings.forEach(l => { 
   if (l.description && l.description.length > 20) { 
     const d = l.description.toLowerCase().trim(); 
-    descCount[d] = (descCount[d] || 0) + 1; 
+    if (!descMap[d]) descMap[d] = [];
+    descMap[d].push(l);
   } 
 });
 
 const fakeSet = new Set();
-listings.forEach(l => {
-  if (l.description && l.description.length > 20) {
-    const d = l.description.toLowerCase().trim();
-    if (descCount[d] > 1) {
-      fakeSet.add(l.listing_id); // Fraud signal: identical descriptions
+Object.values(descMap).forEach(group => {
+  if (group.length > 1) {
+    const uniqueNames = new Set(group.map(l => l.apartment_name?.toLowerCase()));
+    const uniqueLocalities = new Set(group.map(l => l.locality?.toLowerCase()));
+    // Fraud signal: identical descriptions but claiming to be distinct properties/localities
+    if (uniqueNames.size > 1 || uniqueLocalities.size > 1) {
+      group.forEach(l => fakeSet.add(l.listing_id));
     }
   }
 });
@@ -43,7 +46,6 @@ const corruptIds = [];
 for (const l of listings) {
   const isCorrupt = 
     l.price < 0 ||
-    (l.price > 0 && l.price < 50000) || // Low price = wrong unit (corrupt, not fake)
     (l.carpet_area !== undefined && l.carpet_area < 0) ||
     (l.super_built_up_area !== undefined && l.super_built_up_area < 0) ||
     (l.floor > l.total_floors && l.total_floors > 0) ||
@@ -108,9 +110,10 @@ console.log(`\nQ7: ${costliest.project_id}, raw=${costliest.raw}, INR=${costlies
 // BUG #1: Fixed reference to use costliest.price_max_inr instead of undefined costliestInr
 
 // Calculate unique properties by physical attributes
+// Identity: Since lat/lng are perturbed, same physical unit = locality + apartment_name + carpet_area + floor
 const uniquePhysicalProps = new Set();
 listings.forEach(l => {
-  const hash = `${l.locality}|${l.apartment_name}|${l.carpet_area}|${l.floor}`;
+  const hash = `${l.locality}|${l.apartment_name?.toLowerCase()}|${l.carpet_area}|${l.floor}`;
   uniquePhysicalProps.add(hash);
 });
 

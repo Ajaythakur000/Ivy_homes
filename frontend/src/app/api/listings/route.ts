@@ -69,28 +69,46 @@ export async function GET(req: NextRequest) {
   if (propertyType) baseParams.set('property_type', propertyType);
   if (sortBy) { baseParams.set('sort_by', sortBy); baseParams.set('order', order); }
 
-  // Fetch first page to get the total count for this specific query
-  baseParams.set('offset', '0');
-  baseParams.set('limit', String(fetchLimit));
-  const firstPage = await ivyGet(`/v1/listings?${baseParams}`, token);
-  allListings = allListings.concat(firstPage.results || []);
-
-  const totalToFetch = firstPage.total || ACTUAL_TOTAL;
+  // Strictly obey has_more via parallel batching to avoid Vercel timeouts 
+  // while never depending on the inaccurate 'total' field
+  let hasMore = true;
+  let currentOffset = 0;
   
-  if (firstPage.has_more) {
+  while (hasMore) {
+    const batchSize = 10;
     const promises = [];
-    for (let currentOffset = fetchLimit; currentOffset < totalToFetch; currentOffset += fetchLimit) {
+    
+    for (let i = 0; i < batchSize; i++) {
       const p = new URLSearchParams(baseParams);
-      p.set('offset', String(currentOffset));
+      p.set('offset', String(currentOffset + i * fetchLimit));
+      p.set('limit', String(fetchLimit));
       promises.push(ivyGet(`/v1/listings?${p}`, token));
     }
     
-    // Fetch all remaining pages in parallel (API handles concurrent requests easily in <1s)
     const pages = await Promise.all(promises);
+    
     for (const page of pages) {
-      allListings = allListings.concat(page.results || []);
+      if (page.results && page.results.length > 0) {
+        allListings = allListings.concat(page.results);
+      }
+      
+      if (page.has_more === false || !page.results || page.results.length === 0) {
+        hasMore = false;
+        break;
+      }
     }
+    
+    if (!hasMore) break;
+    currentOffset += batchSize * fetchLimit;
   }
+  
+  // Deduplicate in case overlapping fetches occurred
+  const seenIds = new Set();
+  allListings = allListings.filter(item => {
+    if (seenIds.has(item.listing_id)) return false;
+    seenIds.add(item.listing_id);
+    return true;
+  });
 
   // Apply server-side filters
   let filtered = allListings.filter(item => {

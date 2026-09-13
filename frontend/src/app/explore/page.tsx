@@ -37,16 +37,17 @@ export default function ExplorePage() {
   // Debounce price filter changes
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (debouncedMinPrice !== minPrice || debouncedMaxPrice !== maxPrice) {
-        setDebouncedMinPrice(minPrice);
-        setDebouncedMaxPrice(maxPrice);
-        resetAndReload();
-      }
+      let changed = false;
+      if (debouncedMinPrice !== minPrice) { setDebouncedMinPrice(minPrice); changed = true; }
+      if (debouncedMaxPrice !== maxPrice) { setDebouncedMaxPrice(maxPrice); changed = true; }
+      if (changed) resetAndReload();
     }, 500);
     return () => clearTimeout(timer);
   }, [minPrice, maxPrice, debouncedMinPrice, debouncedMaxPrice]);
 
   useEffect(() => {
+    let ignore = false;
+    
     async function loadData() {
       setLoading(true);
       try {
@@ -60,17 +61,21 @@ export default function ExplorePage() {
         if (sortBy) { params.sort_by = sortBy; params.order = sortOrder; }
 
         const data = await fetchListings(params);
+        if (ignore) return;
+        
         const results = data.results || [];
         setListings(prev => offset === 0 ? results : [...prev, ...results]);
         setHasMore(data.has_more ?? false);
         setTotal(data.total ?? 0);
       } catch (err) {
-        console.error('Failed to load listings:', err);
+        if (!ignore) console.error('Failed to load listings:', err);
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     }
+    
     loadData();
+    return () => { ignore = true; };
   }, [locality, bhk, propertyType, debouncedMinPrice, debouncedMaxPrice, furnishing, sortBy, sortOrder, offset]);
 
   const resetAndReload = () => {

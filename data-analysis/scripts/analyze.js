@@ -76,12 +76,12 @@ coordDupes.slice(0, 5).forEach(([key, group]) => {
 // True property identity should be coords + floor + BHK (same apartment, same floor, same config = same unit)
 const unitGroups = {};
 for (const l of listings) {
-  const key = `${l.latitude}|${l.longitude}|${l.floor}|${l.bedroom}|${l.carpet_area}`;
+  const key = `${l.locality}|${l.apartment_name?.toLowerCase()}|${l.carpet_area}|${l.floor}`;
   if (!unitGroups[key]) unitGroups[key] = [];
   unitGroups[key].push(l);
 }
 const unitDupes = Object.entries(unitGroups).filter(([, g]) => g.length > 1).sort((a, b) => b[1].length - a[1].length);
-console.log(`\nUnit-level duplicates (coord+floor+bed+carpet): ${unitDupes.length} groups`);
+console.log(`\nUnit-level duplicates (locality+apartment+carpet+floor): ${unitDupes.length} groups`);
 unitDupes.slice(0, 10).forEach(([key, group]) => {
   console.log(`  ${key}: ${group.length} listings`);
   group.forEach(l => {
@@ -90,9 +90,8 @@ unitDupes.slice(0, 10).forEach(([key, group]) => {
 });
 
 // The question says "A property described by several records counts once"
-// Best identity: same physical unit = same coords + same floor + same bed + same carpet_area
 const uniqueProperties = Object.keys(unitGroups).length;
-console.log(`\n>>> Q2: ${uniqueProperties} unique properties (using lat+lng+floor+bed+carpet_area)`);
+console.log(`\n>>> Q2: ${uniqueProperties} unique properties (using locality+apartment_name+carpet_area+floor)`);
 
 // ========== Q3: active_listings ==========
 console.log('\n========== Q3: ACTIVE LISTINGS ==========');
@@ -227,27 +226,27 @@ console.log(`>>> Q8: ${countIST} (IST)`);
 
 // ========== Q9: fake_listing_ids ==========
 console.log('\n========== Q9: FAKE LISTING IDS ==========');
-
-// Strategy 1: Phone numbers used across many listings
-const phoneMap = {};
-for (const l of listings) {
-  if (!phoneMap[l.posted_by_contact]) phoneMap[l.posted_by_contact] = [];
-  phoneMap[l.posted_by_contact].push(l);
-}
-const topPhones = Object.entries(phoneMap).sort((a, b) => b[1].length - a[1].length);
-console.log('Phone frequency (top 30):');
-topPhones.slice(0, 30).forEach(([phone, ls]) => {
-  const names = [...new Set(ls.map(l => l.posted_by_name))];
-  const locs = [...new Set(ls.map(l => l.locality))];
-  console.log(`  ${phone}: ${ls.length} listings, names=[${names.join(',')}], locs=[${locs.join(',')}]`);
+const descMap = {};
+listings.forEach(l => { 
+  if (l.description && l.description.length > 20) { 
+    const d = l.description.toLowerCase().trim(); 
+    if (!descMap[d]) descMap[d] = [];
+    descMap[d].push(l);
+  } 
 });
 
-// Strategy 2: Name frequency
-const nameMap = {};
-for (const l of listings) {
-  if (!nameMap[l.posted_by_name]) nameMap[l.posted_by_name] = [];
-  nameMap[l.posted_by_name].push(l);
-}
+const fakeSet = new Set();
+Object.values(descMap).forEach(group => {
+  if (group.length > 1) {
+    const uniqueNames = new Set(group.map(l => l.apartment_name?.toLowerCase()));
+    const uniqueLocalities = new Set(group.map(l => l.locality?.toLowerCase()));
+    if (uniqueNames.size > 1 || uniqueLocalities.size > 1) {
+      group.forEach(l => fakeSet.add(l.listing_id));
+    }
+  }
+});
+const fakeIds = [...fakeSet].sort();
+console.log(`Fake listings found: ${fakeIds.length}`);
 const topNames = Object.entries(nameMap).sort((a, b) => b[1].length - a[1].length);
 console.log('\nName frequency (top 20):');
 topNames.slice(0, 20).forEach(([name, ls]) => {
@@ -399,21 +398,21 @@ console.log(`Q5  total_monthly_rent:               ${totalRent}`);
 console.log(`Q6  avg_price_per_sqft_2bhk:          ${avgPpsf.toFixed(2)}`);
 console.log(`Q7  costliest_project:                ${costliest.project_id} = ${costliest.price_max} (raw)`);
 console.log(`Q8  listings_last_7_days:             ${countIST}`);
-console.log(`Q9  fake_listing_ids:                 TBD`);
+console.log(`Q9  fake_listing_ids:                 [${fakeIds.join(', ')}] (${fakeIds.length})`);
 console.log(`Q10 projects_with_wrong_listing_count: ${wrongCount}`);
 
 // Save analysis output for frontend consumption
 const output = {
   timestamp: new Date().toISOString(),
   q1: { total_listing_records: listings.length, api_reported: metadata.listings.reported_total },
-  q2: { unique_properties: uniqueProperties, method: 'lat+lng+floor+bedroom+carpet_area' },
+  q2: { unique_properties: uniqueProperties, method: 'locality+apartment_name+carpet_area+floor' },
   q3: { active_listings: liveTrue, inactive: liveFalse },
   q4: { corrupt_listing_ids: corruptIds, details: corrupt },
   q5: { total_monthly_rent: totalRent, locality: ASSIGNED_LOCALITY, rental_count: balewadiRentals.length },
   q6: { avg_price_per_sqft_2bhk: parseFloat(avgPpsf.toFixed(2)), eligible_count: eligible.length },
   q7: { costliest_project: { project_id: costliest.project_id, price_max_raw: costliest.price_max, apartment_name: costliest.apartment_name } },
   q8: { listings_last_7_days: countIST },
-  q9: { fake_listing_ids: [], status: 'investigation_in_progress' },
+  q9: { fake_listing_ids: fakeIds, status: 'completed' },
   q10: { projects_with_wrong_listing_count: wrongCount, total_projects: projects.length, wrong_projects: wrongProjects },
   stats: {
     total_listings: listings.length,

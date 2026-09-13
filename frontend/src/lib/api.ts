@@ -62,8 +62,12 @@ export async function fetchProjects(params: Record<string, any> = {}) {
   return res.json();
 }
 
-export async function getSaved() {
-  const res = await api('/api/proxy/v1/saved');
+export async function getSaved(params: Record<string, any> = {}) {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([k, v]) => {
+    if (v !== undefined && v !== '') query.append(k, String(v));
+  });
+  const res = await api(`/api/proxy/v1/saved?${query}`);
   if (!res.ok) throw new Error('Failed to fetch saved listings');
   return res.json();
 }

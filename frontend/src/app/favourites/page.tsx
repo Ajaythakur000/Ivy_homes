@@ -34,14 +34,22 @@ export default function FavouritesPage() {
     async function fetchSavedDetails() {
       setFetching(true);
       try {
-        // We fetch the full list of saved from the proxy to get all metadata
-        const res = await fetch('/api/proxy/v1/saved');
-        if (res.ok) {
+        let allSaved: any[] = [];
+        let currentOffset = 0;
+        let hasMore = true;
+        
+        while (hasMore) {
+          const res = await fetch(`/api/proxy/v1/saved?offset=${currentOffset}&limit=50`);
+          if (!res.ok) break;
           const data = await res.json();
-          // Filter to only what's currently in context to prevent sync lag
-          const items = (data.results || []).filter((r: any) => savedIds.has(r.listing_id));
-          setSavedItems(items);
+          allSaved = allSaved.concat(data.results || []);
+          if (!data.has_more) break;
+          currentOffset += 50;
         }
+        
+        // Filter to only what's currently in context to prevent sync lag
+        const items = allSaved.filter((r: any) => savedIds.has(r.listing_id));
+        setSavedItems(items);
       } catch (err) {
         console.error(err);
       } finally {

@@ -8,17 +8,25 @@ if (!API_KEY) {
   process.exit(1);
 }
 
+function getHeaders(token = null) {
+  const headers = {
+    'X-API-Key': API_KEY,
+    'Content-Type': 'application/json'
+  };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
+}
+
 /**
  * Make an authenticated GET request to the Ivy API
  */
-export async function apiGet(path, params = {}) {
+export async function apiGet(path, params = {}, token = null) {
   const url = new URL(path, BASE_URL);
-  url.searchParams.set('api_key', API_KEY);
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
   }
   
-  const res = await fetch(url.toString());
+  const res = await fetch(url.toString(), { headers: getHeaders(token) });
   if (!res.ok) {
     const body = await res.text();
     throw new Error(`API ${res.status} at ${path}: ${body}`);
@@ -31,14 +39,10 @@ export async function apiGet(path, params = {}) {
  */
 export async function apiPost(path, body = {}, token = null) {
   const url = new URL(path, BASE_URL);
-  url.searchParams.set('api_key', API_KEY);
-  
-  const headers = { 'Content-Type': 'application/json' };
-  if (token) headers['Authorization'] = `Bearer ${token}`;
   
   const res = await fetch(url.toString(), {
     method: 'POST',
-    headers,
+    headers: getHeaders(token),
     body: JSON.stringify(body),
   });
   if (!res.ok) {
@@ -57,35 +61,31 @@ export async function login(email = 'demo1@ivy.homes') {
 }
 
 /**
- * Fetch ALL pages from a paginated endpoint. 
- * Returns { records, total, pages }
+ * Fetch ALL records from a paginated endpoint. 
+ * Respects effective limit of 50 and uses offset pagination.
  */
-export async function fetchAllPages(path, params = {}, limit = 200) {
+export async function fetchAllPages(path, params = {}, limit = 50, token = null) {
   const allRecords = [];
-  let page = 1;
+  let offset = 0;
   let total = null;
   
   while (true) {
-    const data = await apiGet(path, { ...params, page, limit });
+    const data = await apiGet(path, { ...params, offset, limit }, token);
     
-    // Discover actual pagination shape
-    const results = data.results || data.data || [];
+    const results = data.results || [];
     if (total === null) {
-      total = data.total ?? data.count ?? 0;
-      console.log(`  ${path}: total=${total}, fetching with limit=${limit}...`);
+      total = data.total ?? 0;
+      console.log(`  ${path}: reported total=${total}, fetching with limit=${limit}...`);
     }
     
     allRecords.push(...results);
-    console.log(`  Page ${page}: got ${results.length} records (cumulative: ${allRecords.length}/${total})`);
+    console.log(`  Offset ${offset}: got ${results.length} records`);
     
-    if (results.length === 0 || allRecords.length >= total) break;
-    page++;
-    
-    // Small delay to be respectful
-    await new Promise(r => setTimeout(r, 50));
+    if (data.has_more === false || results.length === 0) break;
+    offset += limit;
   }
   
-  return { records: allRecords, total, pages: page };
+  return { records: allRecords, total };
 }
 
 export { BASE_URL, API_KEY };

@@ -34,8 +34,18 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
     }
     try {
       setLoading(true);
-      const data = await getSaved();
-      const ids = new Set<string>((data.results || []).map((r: any) => r.listing_id));
+      let allSaved: any[] = [];
+      let currentOffset = 0;
+      let hasMore = true;
+      
+      while (hasMore) {
+        const data = await getSaved({ offset: currentOffset, limit: 50 });
+        allSaved = allSaved.concat(data.results || []);
+        if (!data.has_more) break;
+        currentOffset += 50;
+      }
+      
+      const ids = new Set<string>(allSaved.map((r: any) => r.listing_id));
       setSavedIds(ids);
     } catch (err) {
       console.error('Failed to load favourites', err);
