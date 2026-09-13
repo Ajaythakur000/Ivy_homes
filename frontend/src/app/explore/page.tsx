@@ -98,7 +98,7 @@ export default function ExplorePage() {
               setSortBy(s || ''); setSortOrder(o || 'desc');
               resetAndReload();
             }}
-            className="border border-border rounded-lg px-3 py-2 bg-white text-sm"
+            className="border border-white/[0.08] rounded-lg px-3 py-2 bg-surface text-foreground text-sm"
           >
             <option value="">Default Order</option>
             <option value="price-asc">Price: Low to High</option>
@@ -110,11 +110,11 @@ export default function ExplorePage() {
       </div>
       
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 mb-8 p-4 bg-white border border-border rounded-xl">
+      <div className="flex flex-wrap gap-3 mb-8 p-4 bg-surface border border-white/[0.08] rounded-xl">
         <select 
           value={locality} 
           onChange={e => { setLocality(e.target.value); resetAndReload(); }}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] text-sm"
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm"
         >
           <option value="">All Localities</option>
           <option value="hadapsar">Hadapsar</option>
@@ -132,7 +132,7 @@ export default function ExplorePage() {
         <select 
           value={bhk} 
           onChange={e => { setBhk(e.target.value); resetAndReload(); }}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] text-sm"
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm"
         >
           <option value="">All BHK</option>
           <option value="1">1 BHK</option>
@@ -145,7 +145,7 @@ export default function ExplorePage() {
         <select 
           value={propertyType} 
           onChange={e => { setPropertyType(e.target.value); resetAndReload(); }}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] text-sm"
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm"
         >
           <option value="">All Types</option>
           <option value="apartment">Apartment</option>
@@ -168,7 +168,7 @@ export default function ExplorePage() {
             }
           }}
           onWheel={e => (e.target as HTMLInputElement).blur()}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] w-32 text-sm"
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] w-32 text-sm"
         />
         <input 
           type="number"
@@ -182,12 +182,12 @@ export default function ExplorePage() {
             }
           }}
           onWheel={e => (e.target as HTMLInputElement).blur()}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] w-32 text-sm"
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] w-32 text-sm"
         />
         <select 
           value={furnishing} 
           onChange={e => { setFurnishing(e.target.value); resetAndReload(); }}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] text-sm"
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm"
         >
           <option value="">Any Furnishing</option>
           <option value="fully-furnished">Fully Furnished</option>
@@ -203,26 +203,26 @@ export default function ExplorePage() {
           const hasError = item.price < 0 || !item.apartment_name;
           
           return (
-            <div key={item.listing_id} className="group relative flex flex-col border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 bg-white">
+            <div key={item.listing_id} className="group relative flex flex-col border border-white/[0.04] rounded-xl overflow-hidden hover:shadow-lg hover:shadow-black/40 transition-all duration-300 bg-surface">
               <Link href={`/listing/${item.listing_id}`} className="absolute inset-0 z-0" aria-label={`View ${item.apartment_name}`} />
               
               <div 
-                className="h-48 relative flex items-center justify-center border-b border-border/50"
+                className="h-48 relative flex items-center justify-center border-b border-white/[0.08]/50"
                 style={{
-                  backgroundColor: '#F7F6F2',
+                  backgroundColor: '#1A1D24',
                   backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23686863' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E")`
                 }}
               >
-                <span className="text-muted text-xs uppercase tracking-widest font-medium px-3 py-1 bg-white/80 backdrop-blur-sm rounded-full border border-border/50">
+                <span className="text-muted text-xs uppercase tracking-widest font-medium px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-white/10">
                   {item.property_type || 'Property'}
                 </span>
                 
                 <div className="absolute top-3 left-3 flex gap-2">
                   {hasError && (
-                    <span className="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-md font-medium border border-red-200 shadow-sm z-10">⚠ Invalid</span>
+                    <span className="bg-red-500/10 text-red-400 text-xs px-2.5 py-1 rounded-md font-medium border border-red-500/20 shadow-sm z-10">⚠ Invalid</span>
                   )}
                   {item.is_live === false && !hasError && (
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-md font-medium border border-gray-200 shadow-sm z-10">Inactive</span>
+                    <span className="bg-white/5 text-secondary text-xs px-2.5 py-1 rounded-md font-medium border border-white/10 shadow-sm z-10">Inactive</span>
                   )}
                   {item.is_verified && !hasError && (
                     <span className="bg-[#E8F3EE] text-accent text-xs px-2.5 py-1 rounded-md font-medium border border-[#D1E6DB] shadow-sm z-10">✓ Verified</span>
@@ -237,8 +237,8 @@ export default function ExplorePage() {
                   }}
                   className={`absolute top-3 right-3 p-2 rounded-full z-10 transition-all shadow-sm border ${
                     isSaved 
-                      ? 'bg-red-50 text-red-500 border-red-100 hover:bg-red-100' 
-                      : 'bg-white text-secondary border-border hover:text-accent hover:border-accent'
+                      ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20' 
+                      : 'bg-black/40 text-secondary border-white/10 hover:text-accent hover:border-accent'
                   }`}
                   aria-label={isSaved ? "Remove from saved" : "Save property"}
                 >
@@ -257,7 +257,7 @@ export default function ExplorePage() {
                   <span className="text-sm font-medium text-secondary">{item.bedroom} BHK <span className="mx-1 opacity-50">|</span> {item.carpet_area} sqft</span>
                 </div>
                 
-                <div className="mt-4 pt-4 border-t border-border/50 flex gap-2">
+                <div className="mt-4 pt-4 border-t border-white/[0.08]/50 flex gap-2">
                   <span className="text-[11px] font-medium text-secondary uppercase tracking-wider bg-background px-2 py-1 rounded-md">{item.furnishing || 'N/A'}</span>
                   <span className="text-[11px] font-medium text-secondary uppercase tracking-wider bg-background px-2 py-1 rounded-md">{item.facing_direction || 'N/A'}</span>
                 </div>
@@ -280,7 +280,7 @@ export default function ExplorePage() {
         <div className="text-center py-4">
           <button 
             onClick={() => setOffset(prev => prev + limit)}
-            className="px-8 py-2.5 border border-border rounded-xl hover:bg-white transition text-sm font-medium"
+            className="btn-secondary text-sm font-medium"
           >
             Load More Properties
           </button>

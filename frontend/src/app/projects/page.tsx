@@ -39,7 +39,7 @@ export default function ProjectsPage() {
       
       <div className="flex flex-wrap gap-3 mb-8">
         <select value={locality} onChange={e => { setLocality(e.target.value); reset(); }}
-          className="border border-border rounded-lg px-3 py-2 bg-white text-sm">
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-surface text-foreground text-sm">
           <option value="">All Localities</option>
           {['hadapsar','wakad','hinjewadi','aundh','kothrud','magarpatta','baner','kharadi','viman nagar','balewadi'].map(l => (
             <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>
@@ -49,7 +49,7 @@ export default function ProjectsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {projects.map(item => (
-          <Link key={item.project_id} href={`/project/${item.project_id}`} className="group block border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-white">
+          <Link key={item.project_id} href={`/project/${item.project_id}`} className="group block border border-white/[0.04] rounded-xl overflow-hidden hover:shadow-lg hover:shadow-black/40 transition-shadow bg-surface">
             <div className="h-40 bg-gradient-to-br from-amber-50 to-orange-50 flex items-center justify-center">
               <span className="text-muted text-sm capitalize">{item.project_status}</span>
             </div>
@@ -60,9 +60,9 @@ export default function ProjectsPage() {
                 <span className="font-semibold">₹{Math.min(item.price_min, item.price_max)} - {Math.max(item.price_min, item.price_max)} L</span>
               </div>
               <div className="mt-2 flex gap-2 text-xs flex-wrap">
-                <span className="text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{item.total_units} units</span>
-                <span className="text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{item.total_towers} towers</span>
-                <span className="text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">{item.min_area_sqft}-{item.max_area_sqft} sqft</span>
+                <span className="text-muted bg-[#15181E] px-2 py-0.5 rounded">{item.total_units} units</span>
+                <span className="text-muted bg-[#15181E] px-2 py-0.5 rounded">{item.total_towers} towers</span>
+                <span className="text-muted bg-[#15181E] px-2 py-0.5 rounded">{item.min_area_sqft}-{item.max_area_sqft} sqft</span>
               </div>
             </div>
           </Link>
@@ -72,7 +72,7 @@ export default function ProjectsPage() {
       {loading && <div className="text-center py-8 text-secondary">Loading...</div>}
       {!loading && hasMore && (
         <div className="text-center py-4">
-          <button onClick={() => setOffset(prev => prev + limit)} className="px-8 py-2.5 border border-border rounded-xl hover:bg-white transition text-sm font-medium">
+          <button onClick={() => setOffset(prev => prev + limit)} className="btn-secondary text-sm font-medium">
             Load More
           </button>
         </div>

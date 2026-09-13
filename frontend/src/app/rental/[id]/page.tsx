@@ -45,7 +45,7 @@ export default function RentalDetail({ params }: { params: { id: string } }) {
           { label: 'Maintenance', value: rental.maintenance ? `₹${rental.maintenance}/mo` : 'N/A' },
           { label: 'Type', value: rental.property_type },
         ].map((item, i) => (
-          <div key={i} className="p-4 border border-border rounded-xl bg-white">
+          <div key={i} className="p-4 border border-white/[0.08] rounded-xl bg-surface">
             <div className="text-xs text-secondary uppercase tracking-wide">{item.label}</div>
             <div className="font-semibold mt-1 capitalize">{item.value}</div>
           </div>
@@ -57,7 +57,7 @@ export default function RentalDetail({ params }: { params: { id: string } }) {
         <p className="text-secondary leading-relaxed">{rental.description || 'No description.'}</p>
       </div>
 
-      <div className="p-5 border border-border rounded-xl bg-white mb-8">
+      <div className="p-5 border border-white/[0.08] rounded-xl bg-surface mb-8">
         <h3 className="font-medium mb-3">Contact</h3>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between"><span className="text-secondary">Posted by</span><span className="capitalize">{rental.posted_by}</span></div>

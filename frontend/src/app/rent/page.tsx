@@ -39,16 +39,16 @@ export default function RentPage() {
         <p className="text-secondary mt-1">{total.toLocaleString()} rentals in Pune</p>
       </div>
       
-      <div className="flex flex-wrap gap-3 mb-8 p-4 bg-white border border-border rounded-xl">
+      <div className="flex flex-wrap gap-3 mb-8 p-4 bg-surface border border-white/[0.08] rounded-xl">
         <select value={locality} onChange={e => { setLocality(e.target.value); reset(); }}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] text-sm">
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm">
           <option value="">All Localities</option>
           {['hadapsar','wakad','hinjewadi','aundh','kothrud','magarpatta','baner','kharadi','viman nagar','balewadi'].map(l => (
             <option key={l} value={l} className="capitalize">{l.charAt(0).toUpperCase() + l.slice(1)}</option>
           ))}
         </select>
         <select value={bhk} onChange={e => { setBhk(e.target.value); reset(); }}
-          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] text-sm">
+          className="border border-white/[0.08] rounded-lg px-3 py-2 bg-[#15181E] text-sm">
           <option value="">All BHK</option>
           {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} BHK</option>)}
         </select>
@@ -56,7 +56,7 @@ export default function RentPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {rentals.map(item => (
-          <Link key={item.listing_id} href={`/rental/${item.listing_id}`} className="group block border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow bg-white">
+          <Link key={item.listing_id} href={`/rental/${item.listing_id}`} className="group block border border-white/[0.04] rounded-xl overflow-hidden hover:shadow-lg hover:shadow-black/40 transition-shadow bg-surface">
             <div className="h-40 bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
               <span className="text-muted text-sm capitalize">{item.property_type}</span>
             </div>
@@ -68,8 +68,8 @@ export default function RentPage() {
                 <span className="text-sm text-secondary">{item.bedroom} BHK</span>
               </div>
               <div className="mt-2 flex gap-2 text-xs">
-                <span className="text-muted bg-[#F7F6F2] px-2 py-0.5 rounded capitalize">{item.furnishing}</span>
-                {item.deposit > 0 && <span className="text-muted bg-[#F7F6F2] px-2 py-0.5 rounded">Dep: ₹{item.deposit?.toLocaleString('en-IN')}</span>}
+                <span className="text-muted bg-[#15181E] px-2 py-0.5 rounded capitalize">{item.furnishing}</span>
+                {item.deposit > 0 && <span className="text-muted bg-[#15181E] px-2 py-0.5 rounded">Dep: ₹{item.deposit?.toLocaleString('en-IN')}</span>}
               </div>
             </div>
           </Link>
@@ -79,7 +79,7 @@ export default function RentPage() {
       {loading && <div className="text-center py-8 text-secondary">Loading...</div>}
       {!loading && hasMore && (
         <div className="text-center py-4">
-          <button onClick={() => setOffset(prev => prev + limit)} className="px-8 py-2.5 border border-border rounded-xl hover:bg-white transition text-sm font-medium">
+          <button onClick={() => setOffset(prev => prev + limit)} className="btn-secondary text-sm font-medium">
             Load More
           </button>
         </div>

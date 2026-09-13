@@ -49,7 +49,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <div className="p-6 bg-white border border-border rounded-xl mb-8">
+      <div className="p-6 bg-surface border border-white/[0.08] rounded-xl mb-8">
         <div className="text-2xl font-semibold mb-1">₹{priceMin} L – ₹{priceMax} L</div>
         <p className="text-sm text-secondary">Price range (in Lakhs). Note: project prices use mixed units.</p>
       </div>
@@ -65,7 +65,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           { label: 'Possession', value: project.possession_date || 'N/A' },
           { label: 'Listings', value: project.total_listings },
         ].map((item, i) => (
-          <div key={i} className="p-4 border border-border rounded-xl bg-white">
+          <div key={i} className="p-4 border border-white/[0.08] rounded-xl bg-surface">
             <div className="text-xs text-secondary uppercase tracking-wide">{item.label}</div>
             <div className="font-semibold mt-1">{item.value}</div>
           </div>
@@ -77,14 +77,14 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           <h2 className="text-xl font-medium mb-3">Amenities</h2>
           <div className="flex flex-wrap gap-2">
             {project.amenities.map((a: string, i: number) => (
-              <span key={i} className="px-3 py-1.5 bg-[#F7F6F2] border border-border rounded-lg text-sm capitalize">{a}</span>
+              <span key={i} className="px-3 py-1.5 bg-[#15181E] border border-white/[0.08] rounded-lg text-sm capitalize">{a}</span>
             ))}
           </div>
         </div>
       )}
 
       {project.project_url && (
-        <a href={project.project_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-5 py-2.5 border border-border rounded-xl hover:bg-white transition text-sm">
+        <a href={project.project_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 btn-secondary text-sm">
           View Project Page ↗
         </a>
       )}

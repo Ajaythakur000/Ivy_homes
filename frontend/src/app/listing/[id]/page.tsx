@@ -65,47 +65,47 @@ export default function ListingDetail({ params }: { params: { id: string } }) {
 
       {/* Status badges */}
       <div className="flex gap-2 mb-8">
-        <span className={`text-xs px-3 py-1 rounded-full ${listing.is_live ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+        <span className={`text-xs px-3 py-1 rounded-full ${listing.is_live ? 'bg-accent/10 text-accent border border-accent/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
           {listing.is_live ? '● Active' : '○ Inactive'}
         </span>
         {listing.is_verified && <span className="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-700">✓ Verified</span>}
-        <span className="text-xs px-3 py-1 rounded-full bg-[#F7F6F2] text-secondary capitalize">{listing.property_type}</span>
-        <button onClick={handleSave} className="text-xs px-3 py-1 rounded-full border border-border hover:bg-[#F7F6F2] transition ml-auto">
+        <span className="text-xs px-3 py-1 rounded-full bg-[#15181E] text-secondary capitalize">{listing.property_type}</span>
+        <button onClick={handleSave} className="text-xs px-3 py-1 rounded-full border border-white/[0.08] hover:bg-[#15181E] transition ml-auto">
           {isSaved ? '♥ Saved' : '♡ Save'}
         </button>
       </div>
 
       {/* Key Info Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div className="p-4 border border-border rounded-xl bg-white">
+        <div className="p-4 border border-white/[0.08] rounded-xl bg-surface">
           <div className="text-xs text-secondary uppercase tracking-wide">Bedrooms</div>
           <div className="font-semibold text-lg mt-1">{listing.bedroom} BHK</div>
         </div>
-        <div className="p-4 border border-border rounded-xl bg-white">
+        <div className="p-4 border border-white/[0.08] rounded-xl bg-surface">
           <div className="text-xs text-secondary uppercase tracking-wide">Bathrooms</div>
           <div className="font-semibold text-lg mt-1">{listing.bathroom}</div>
         </div>
-        <div className="p-4 border border-border rounded-xl bg-white">
+        <div className="p-4 border border-white/[0.08] rounded-xl bg-surface">
           <div className="text-xs text-secondary uppercase tracking-wide">Carpet Area</div>
           <div className="font-semibold text-lg mt-1">{listing.carpet_area} sqft</div>
         </div>
-        <div className="p-4 border border-border rounded-xl bg-white">
+        <div className="p-4 border border-white/[0.08] rounded-xl bg-surface">
           <div className="text-xs text-secondary uppercase tracking-wide">Super Built-Up</div>
           <div className="font-semibold text-lg mt-1">{listing.super_built_up_area} sqft</div>
         </div>
-        <div className="p-4 border border-border rounded-xl bg-white">
+        <div className="p-4 border border-white/[0.08] rounded-xl bg-surface">
           <div className="text-xs text-secondary uppercase tracking-wide">Floor</div>
           <div className="font-semibold text-lg mt-1">{listing.floor} / {listing.total_floors}</div>
         </div>
-        <div className="p-4 border border-border rounded-xl bg-white">
+        <div className="p-4 border border-white/[0.08] rounded-xl bg-surface">
           <div className="text-xs text-secondary uppercase tracking-wide">Furnishing</div>
           <div className="font-semibold text-lg mt-1 capitalize">{listing.furnishing}</div>
         </div>
-        <div className="p-4 border border-border rounded-xl bg-white">
+        <div className="p-4 border border-white/[0.08] rounded-xl bg-surface">
           <div className="text-xs text-secondary uppercase tracking-wide">Facing</div>
           <div className="font-semibold text-lg mt-1 capitalize">{listing.facing_direction}</div>
         </div>
-        <div className="p-4 border border-border rounded-xl bg-white">
+        <div className="p-4 border border-white/[0.08] rounded-xl bg-surface">
           <div className="text-xs text-secondary uppercase tracking-wide">Parking</div>
           <div className="font-semibold text-lg mt-1">{listing.covered_parking} covered</div>
         </div>
@@ -119,7 +119,7 @@ export default function ListingDetail({ params }: { params: { id: string } }) {
 
       {/* Contact & Metadata */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="p-5 border border-border rounded-xl bg-white">
+        <div className="p-5 border border-white/[0.08] rounded-xl bg-surface">
           <h3 className="font-medium mb-3">Contact</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between"><span className="text-secondary">Posted by</span><span className="capitalize">{listing.posted_by}</span></div>
@@ -127,7 +127,7 @@ export default function ListingDetail({ params }: { params: { id: string } }) {
             <div className="flex justify-between"><span className="text-secondary">Phone</span><span>{listing.posted_by_contact}</span></div>
           </div>
         </div>
-        <div className="p-5 border border-border rounded-xl bg-white">
+        <div className="p-5 border border-white/[0.08] rounded-xl bg-surface">
           <h3 className="font-medium mb-3">Details</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between"><span className="text-secondary">Listing ID</span><span className="font-mono text-xs">{listing.listing_id}</span></div>

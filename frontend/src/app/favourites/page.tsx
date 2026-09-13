@@ -52,32 +52,32 @@ export default function FavouritesPage() {
           {savedItems.map(item => {
             const hasError = item.price < 0 || !item.apartment_name;
             return (
-              <div key={item.listing_id} className="group relative flex flex-col border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 bg-white">
+              <div key={item.listing_id} className="group relative flex flex-col border border-white/[0.04] rounded-xl overflow-hidden hover:shadow-lg hover:shadow-black/40 transition-all duration-300 bg-surface">
                 <Link href={`/listing/${item.listing_id}`} className="absolute inset-0 z-0" aria-label={`View ${item.apartment_name}`} />
                 
                 <div 
-                  className="h-48 relative flex items-center justify-center border-b border-border/50"
+                  className="h-48 relative flex items-center justify-center border-b border-white/[0.08]/50"
                   style={{
-                    backgroundColor: '#F7F6F2',
+                    backgroundColor: '#1A1D24',
                     backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23686863' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E")`
                   }}
                 >
-                  <span className="text-muted text-xs uppercase tracking-widest font-medium px-3 py-1 bg-white/80 backdrop-blur-sm rounded-full border border-border/50">
+                  <span className="text-muted text-xs uppercase tracking-widest font-medium px-3 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-white/10">
                     {item.property_type || 'Property'}
                   </span>
                   
                   <div className="absolute top-3 left-3 flex gap-2">
                     {hasError && (
-                      <span className="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-md font-medium border border-red-200 shadow-sm z-10">⚠ Invalid</span>
+                      <span className="bg-red-500/10 text-red-400 text-xs px-2.5 py-1 rounded-md font-medium border border-red-500/20 shadow-sm z-10">⚠ Invalid</span>
                     )}
                     {item.is_live === false && !hasError && (
-                      <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-md font-medium border border-gray-200 shadow-sm z-10">Inactive</span>
+                      <span className="bg-white/5 text-secondary text-xs px-2.5 py-1 rounded-md font-medium border border-white/10 shadow-sm z-10">Inactive</span>
                     )}
                   </div>
 
                   <button 
                     onClick={(e) => handleRemove(item.listing_id, e)}
-                    className="absolute top-3 right-3 p-2 rounded-full z-10 transition-all shadow-sm border bg-red-50 text-red-500 border-red-100 hover:bg-red-100"
+                    className="absolute top-3 right-3 p-2 rounded-full z-10 transition-all shadow-sm border bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20"
                     title="Remove from saved"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

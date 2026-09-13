@@ -26,8 +26,8 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-[#F7F6F2] px-6">
-          <div className="max-w-md w-full bg-white p-8 rounded-xl border border-border shadow-sm text-center">
+        <div className="min-h-screen flex items-center justify-center bg-[#15181E] px-6">
+          <div className="max-w-md w-full glass-panel p-8 text-center shadow-sm text-center">
             <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
             <p className="text-secondary text-sm mb-6">We encountered an unexpected error while rendering this page.</p>
             <button
