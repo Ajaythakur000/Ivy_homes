@@ -26,12 +26,12 @@ function validate() {
     process.exit(1);
   }
 
-  const { answers, findings, demo_url } = data;
+  const { answers, findings, candidate } = data;
   
   let errors = 0;
 
-  if (!demo_url || demo_url.trim() === '') {
-    console.error('ERROR: demo_url is missing or empty');
+  if (!candidate || !candidate.demo_url || candidate.demo_url.trim() === '') {
+    console.error('ERROR: candidate.demo_url is missing or empty');
     errors++;
   }
 

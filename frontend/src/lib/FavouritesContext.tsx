@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/AuthContext';
 
 interface FavouritesState {
   savedIds: Set<string>;
+  savedItems: any[];
   loading: boolean;
   isSaved: (id: string) => boolean;
   toggleSavedItem: (id: string) => Promise<void>;
@@ -12,6 +13,7 @@ interface FavouritesState {
 
 const FavouritesContext = createContext<FavouritesState>({
   savedIds: new Set(),
+  savedItems: [],
   loading: true,
   isSaved: () => false,
   toggleSavedItem: async () => {},
@@ -23,12 +25,14 @@ export function useFavourites() {
 
 export function FavouritesProvider({ children }: { children: ReactNode }) {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [savedItems, setSavedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated } = useAuth();
 
   const loadSaved = useCallback(async () => {
     if (!isAuthenticated) {
       setSavedIds(new Set());
+      setSavedItems([]);
       setLoading(false);
       return;
     }
@@ -47,6 +51,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
       
       const ids = new Set<string>(allSaved.map((r: any) => r.listing_id));
       setSavedIds(ids);
+      setSavedItems(allSaved);
     } catch (err) {
       console.error('Failed to load favourites', err);
     } finally {
@@ -87,7 +92,7 @@ export function FavouritesProvider({ children }: { children: ReactNode }) {
   }, [savedIds]);
 
   return (
-    <FavouritesContext.Provider value={{ savedIds, loading, isSaved, toggleSavedItem }}>
+    <FavouritesContext.Provider value={{ savedIds, savedItems, loading, isSaved, toggleSavedItem }}>
       {children}
     </FavouritesContext.Provider>
   );

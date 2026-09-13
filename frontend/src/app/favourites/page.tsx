@@ -13,10 +13,8 @@ function formatPrice(price: number) {
 
 export default function FavouritesPage() {
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const { savedIds, loading: favLoading, toggleSavedItem } = useFavourites();
+  const { savedIds, savedItems: contextSavedItems, loading: favLoading, toggleSavedItem } = useFavourites();
   const router = useRouter();
-  const [savedItems, setSavedItems] = useState<any[]>([]);
-  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -24,40 +22,8 @@ export default function FavouritesPage() {
     }
   }, [isAuthenticated, authLoading, router]);
 
-  useEffect(() => {
-    if (savedIds.size === 0) {
-      setSavedItems([]);
-      return;
-    }
-    
-    // Fetch details for all saved IDs
-    async function fetchSavedDetails() {
-      setFetching(true);
-      try {
-        let allSaved: any[] = [];
-        let currentOffset = 0;
-        let hasMore = true;
-        
-        while (hasMore) {
-          const res = await fetch(`/api/proxy/v1/saved?offset=${currentOffset}&limit=50`);
-          if (!res.ok) break;
-          const data = await res.json();
-          allSaved = allSaved.concat(data.results || []);
-          if (!data.has_more) break;
-          currentOffset += 50;
-        }
-        
-        // Filter to only what's currently in context to prevent sync lag
-        const items = allSaved.filter((r: any) => savedIds.has(r.listing_id));
-        setSavedItems(items);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setFetching(false);
-      }
-    }
-    fetchSavedDetails();
-  }, [savedIds]);
+  // Derive display items from context so we don't fetch independently
+  const savedItems = contextSavedItems.filter(item => savedIds.has(item.listing_id));
 
   async function handleRemove(id: string, e: React.MouseEvent) {
     e.preventDefault();
@@ -74,7 +40,7 @@ export default function FavouritesPage() {
     <div className="max-w-7xl mx-auto px-6 py-8">
       <h1 className="text-3xl font-semibold mb-8">Saved Properties</h1>
       
-      {favLoading || fetching ? (
+      {favLoading ? (
         <p className="text-secondary py-12 text-center">Loading saved properties...</p>
       ) : savedItems.length === 0 ? (
         <div className="text-center py-16">
