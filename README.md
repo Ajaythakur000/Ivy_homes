@@ -113,7 +113,7 @@ Used **offset-based pagination** (the correct method) with `limit=50` to fetch a
 
 **Q1 (Total Records):** 3800 — paginated until `has_more=false`.
 
-**Q2 (Unique Properties):** 2664 — deduplicated using identity: locality + apartment_name + carpet_area + floor.
+**Q2 (Unique Properties):** 3791 — deduplicated using identity: locality + apartment_name + carpet_area + floor.
 
 **Q3 (Active Listings):** 2998 — filtered `is_live === true`.
 

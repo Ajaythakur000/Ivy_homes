@@ -226,7 +226,7 @@ console.log(`>>> Q8: ${countIST} (IST)`);
 
 // ========== Q9: fake_listing_ids ==========
 console.log('\n========== Q9: FAKE LISTING IDS ==========');
-const descMap = {};
+const descMap2 = {};
 listings.forEach(l => { 
   if (l.description && l.description.length > 20) { 
     const d = l.description.toLowerCase().trim(); 
@@ -266,13 +266,13 @@ unverified.forEach(l => {
 });
 
 // Strategy 4: Description analysis - same description across multiple listings
-const descMap = {};
+const descMap2 = {};
 for (const l of listings) {
   const desc = l.description?.toLowerCase().trim();
-  if (!descMap[desc]) descMap[desc] = [];
-  descMap[desc].push(l);
+  if (!descMap2[desc]) descMap2[desc] = [];
+  descMap2[desc].push(l);
 }
-const repeatDescs = Object.entries(descMap).filter(([, ls]) => ls.length > 1).sort((a, b) => b[1].length - a[1].length);
+const repeatDescs = Object.entries(descMap2).filter(([, ls]) => ls.length > 1).sort((a, b) => b[1].length - a[1].length);
 console.log(`\nRepeated descriptions: ${repeatDescs.length}`);
 repeatDescs.slice(0, 10).forEach(([desc, ls]) => {
   console.log(`  "${desc.slice(0, 80)}...": ${ls.length} listings`);

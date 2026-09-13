@@ -8,7 +8,7 @@
   },
   "answers": {
     "total_listing_records": 3800,
-    "unique_properties": 3800,
+    "unique_properties": 3791,
     "active_listings": 2998,
     "corrupt_listing_ids": [
       "100-3000174",
