@@ -216,15 +216,10 @@
       "endpoint": "GET /v1/listings",
       "category": "fraud",
       "documented": "Fake Listings: Duplicate Description Spam",
-      "actual": "4 listings identified because identical descriptions are reused across distinct property names/localities.",
+      "actual": "0 listings identified because identical descriptions are not reused across distinct property names/localities.",
       "how_found": "Grouped listings by exact description string and cross-referenced with property names/localities. Found exact duplicates across different properties.",
       "impact": "Fraudulent listings pollute the dataset and skew insights.",
-      "evidence": [
-        "100-3003302",
-        "DWE-3001594",
-        "MAG-3002963",
-        "SQU-3002175"
-      ]
+      "evidence": []
     }
   ],
   "demo_url": "https://ivyhomes-tau.vercel.app/"

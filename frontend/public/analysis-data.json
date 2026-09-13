@@ -1,4 +1,11 @@
 {
+  "api_key": "REDACTED_FOR_GITHUB",
+  "candidate": {
+    "name": "Ajay Thakur",
+    "email": "ajay.20233033@mnnit.ac.in",
+    "repo_url": "https://github.com/Ajaythakur000/Ivy_homes",
+    "demo_url": ""
+  },
   "answers": {
     "total_listing_records": 3800,
     "unique_properties": 3800,
@@ -209,51 +216,11 @@
       "endpoint": "GET /v1/listings",
       "category": "fraud",
       "documented": "Fake Listings: Duplicate Description Spam",
-      "actual": "4 listings identified because identical descriptions are reused across distinct property names/localities.",
+      "actual": "0 listings identified because identical descriptions are not reused across distinct property names/localities.",
       "how_found": "Grouped listings by exact description string and cross-referenced with property names/localities. Found exact duplicates across different properties.",
       "impact": "Fraudulent listings pollute the dataset and skew insights.",
-      "evidence": [
-        "100-3003302",
-        "DWE-3001594",
-        "MAG-3002963",
-        "SQU-3002175"
-      ]
+      "evidence": []
     }
   ],
-  "statistics": {
-    "total_listings": 3800,
-    "total_rentals": 1450,
-    "total_projects": 440,
-    "active_listings": 2998,
-    "inactive_listings": 802,
-    "price_range": "₹4,090,000 - ₹21,270,000",
-    "websites": [
-      "dwelling (771)",
-      "zerobroker (782)",
-      "magichomes (760)",
-      "squarelane (744)",
-      "100acres (743)"
-    ],
-    "localities": [
-      "hadapsar (417)",
-      "wakad (414)",
-      "hinjewadi (414)",
-      "aundh (397)",
-      "kothrud (382)",
-      "magarpatta (375)",
-      "baner (369)",
-      "kharadi (354)",
-      "viman nagar (353)",
-      "balewadi (325)"
-    ],
-    "posted_by_breakdown": {
-      "builder": 493,
-      "owner": 1048,
-      "agent": 2259
-    },
-    "verified_breakdown": {
-      "verified": 2337,
-      "unverified": 1463
-    }
-  }
+  "demo_url": "https://ivyhomes-tau.vercel.app/"
 }
