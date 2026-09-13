@@ -165,13 +165,13 @@ Used **offset-based pagination** (the correct method) with `limit=50` to fetch a
 3. **Pagination is fundamentally different** (offset vs page-based)
 4. **3 endpoints missing**, 1 undocumented endpoint discovered
 5. **3 filters silently broken** (appear to work but have no effect)
-6. **Data quality issues**: 28 corrupt + 4 fake listings, mixed price units in projects
+6. **Data quality issues**: 21 corrupt + 0 fake listings, mixed price units in projects
 
 ## 🛠️ Tech Stack
 
 - **Frontend:** Next.js 14, React, TypeScript, Tailwind CSS
 - **Analysis:** Node.js, vanilla JavaScript
-- **Design:** Warm neutral palette (#F7F6F2), Geist font, editorial aesthetic
+- **Design:** Dark premium real-estate UI with restrained emerald accent and editorial typography
 - **Authentication:** Bearer token with 15-min refresh cycle
 
 ## 📝 License
