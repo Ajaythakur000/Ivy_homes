@@ -63,6 +63,15 @@ export default function ExplorePage() {
     setListings([]);
   };
 
+  // Debounce price filter changes — only trigger reload 500ms after user stops typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      resetAndReload();
+    }, 500);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [minPrice, maxPrice]);
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-8">
@@ -145,7 +154,6 @@ export default function ExplorePage() {
               setMinPrice(val);
               // If max is set and now less than min, clear max
               if (maxPrice && val && Number(maxPrice) < Number(val)) setMaxPrice('');
-              resetAndReload();
             }
           }}
           onWheel={e => (e.target as HTMLInputElement).blur()}
@@ -162,7 +170,6 @@ export default function ExplorePage() {
               // Only accept if empty or >= minPrice
               if (val === '' || !minPrice || Number(val) >= Number(minPrice)) {
                 setMaxPrice(val);
-                resetAndReload();
               }
             }
           }}
