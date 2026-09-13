@@ -164,20 +164,14 @@ export default function ExplorePage() {
           min="0"
           placeholder="Max Price (L)"
           value={maxPrice}
-          onChange={e => {
+          onChange={(e) => {
             const val = e.target.value;
             if (val === '' || Number(val) >= 0) {
-              // Only accept if empty or >= minPrice
-              if (val === '' || !minPrice || Number(val) >= Number(minPrice)) {
-                setMaxPrice(val);
-              }
+              setMaxPrice(val);
             }
           }}
           onWheel={e => (e.target as HTMLInputElement).blur()}
-          className={`border rounded-lg px-3 py-2 bg-[#F7F6F2] w-32 text-sm ${
-            maxPrice && minPrice && Number(maxPrice) < Number(minPrice)
-              ? 'border-red-400' : 'border-border'
-          }`}
+          className="border border-border rounded-lg px-3 py-2 bg-[#F7F6F2] w-32 text-sm"
         />
         <select 
           value={furnishing} 
