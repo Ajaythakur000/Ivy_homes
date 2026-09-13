@@ -9,13 +9,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#F7F6F2",
-        foreground: "#111111",
-        primary: "#111111",
-        secondary: "#686863",
-        muted: "#9B9B94",
-        border: "#DDDCD6",
-        accent: "#2D5A3D"
+        background: "#0F1115",
+        foreground: "#F3F4F6", // warm/crisp off-white
+        primary: "#FFFFFF",
+        secondary: "#9CA3AF", // muted cool gray
+        muted: "#6B7280",
+        border: "rgba(255, 255, 255, 0.08)",
+        accent: {
+          DEFAULT: "#34D399",
+          hover: "#6EE7B7",
+          dark: "#064E3B",
+        },
+        surface: {
+          DEFAULT: "#1A1D24",
+          glass: "rgba(255, 255, 255, 0.03)",
+        }
+      },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
       },
     },
   },

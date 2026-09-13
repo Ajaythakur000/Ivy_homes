@@ -17,11 +17,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={GeistSans.className}>
-      <body>
+    <html lang="en" className={`${GeistSans.className} ${GeistSans.variable}`}>
+      <body className="selection:bg-accent/30 selection:text-white">
         <Providers>
           <Navbar />
-          <main className="min-h-screen pt-16">
+          <main className="min-h-screen pt-24">
             <ErrorBoundary>
               {children}
             </ErrorBoundary>

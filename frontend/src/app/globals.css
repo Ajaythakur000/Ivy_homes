@@ -3,11 +3,63 @@
 @tailwind utilities;
 
 :root {
-  --background: #F7F6F2;
-  --foreground: #111111;
+  --background: #0F1115;
+  --foreground: #F3F4F6;
 }
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background);
+  /* Subtle radial gradients for depth */
+  background-image: 
+    radial-gradient(circle at 15% 0%, rgba(52, 211, 153, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 85% 100%, rgba(255, 255, 255, 0.02) 0%, transparent 40%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  /* Global Page Container */
+  .page-container {
+    @apply max-w-[1400px] mx-auto px-6 md:px-12 w-full;
+  }
+
+  /* Global Surfaces */
+  .glass-panel {
+    @apply bg-white/[0.03] border border-white/[0.08] backdrop-blur-md rounded-xl shadow-lg shadow-black/20;
+  }
+
+  /* Typography */
+  .heading-display {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.1];
+  }
+  
+  .heading-section {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight text-white mb-6;
+  }
+
+  .text-metadata {
+    @apply text-xs uppercase tracking-widest font-medium text-secondary;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-accent text-[#0F1115] font-semibold px-6 py-3 rounded-lg 
+           hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(52,211,153,0.25)] 
+           transition-all duration-300 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center bg-white/[0.03] border border-white/[0.08] text-foreground font-medium px-6 py-3 rounded-lg 
+           hover:bg-white/[0.06] hover:border-white/[0.12] hover:-translate-y-0.5 
+           transition-all duration-300 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* Inputs / Controls */
+  .input-luxury {
+    @apply w-full bg-[#15181E] border border-white/[0.08] text-foreground placeholder-muted rounded-lg px-4 py-3 
+           focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent 
+           hover:border-white/[0.15] transition-all duration-300 shadow-inner shadow-black/10;
+  }
 }
